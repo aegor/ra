@@ -1,0 +1,156 @@
+<link rel="import" href="../core-scaffold/core-scaffold.html">
+<link rel="import" href="../core-header-panel/core-header-panel.html">
+<link rel="import" href="../core-menu/core-menu.html">
+<link rel="import" href="../core-item/core-item.html">
+<link rel="import" href="../core-icon-button/core-icon-button.html">
+<link rel="import" href="../core-toolbar/core-toolbar.html">
+<link rel="import" href="../core-field/core-field.html">
+<link rel="import" href="../core-icon/core-icon.html">
+<link rel="import" href="../core-input/core-input.html">
+<link rel="import" href="../core-icons/core-icons.html">
+<link rel="import" href="../core-menu/core-submenu.html">
+<link rel="import" href="../core-pages/core-pages.html">
+<link rel="import" href="../ra-elements/ra-player-form.html">
+
+<polymer-element name="ra-basic-layout" attributes="players designs suites config">
+
+    <template>
+        <style>
+            :host {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+            }
+/*            #core_scaffold {
+                position: absolute;
+                top: 10px;
+                right: 0px;
+                bottom: 0px;
+                left: 0px;
+                width: 100%;
+                height: 100%;
+            }*/
+            #core_header_panel {
+                background-color: rgb(255, 255, 255);
+            }
+            #core_toolbar {
+                color: rgb(255, 255, 255);
+                background-color: rgb(79, 125, 201);
+            }
+            #core_menu {
+                font-size: 16px;
+            }
+            #core_field {
+                left: 20px;
+                top: 12px;
+                position: absolute;
+                width: 200px;
+                height: 40px;
+                background-color: rgb(250, 247, 247);
+            }
+            #core_menu1 {
+                font-size: 16px;
+                left: 32px;
+                top: 202px;
+                position: absolute;
+            }
+/*            #core_pages {
+                width: 100%;
+                height: 100%;
+                border: 1px solid silver;
+                left: 0px;
+                top: 0px;
+                position: absolute;
+            }*/
+            #core_item {
+                left: 3.09658813476563px;
+                top: 15.0994338989258px;
+                position: absolute;
+            }
+            #b {
+                margin: 5px;
+            }
+        </style>
+        <core-scaffold id="core_scaffold">
+            <core-header-panel mode="seamed" id="core_header_panel" navigation flex>
+                <core-toolbar id="core_toolbar">
+                    <core-field id="core_field" icon="search" theme="core-light-theme" center horizontal layout>
+                        <core-icon icon="search" id="corefield-icon"></core-icon>
+                        <input id="corefield-input" placeholder="поиск..." is="core-input" flex>
+                    </core-field>
+                </core-toolbar>
+                <core-menu selected="3" selectedindex="3" id="main_menu">
+
+                    <core-submenu id="suites_submenu" icon="assignment" label="Сюиты">
+                        <template repeat="{{ suite in suites }}">
+                            <core-item label="{{suite.name}}" horizontal center layout active></core-item>
+                        </template>
+                    </core-submenu>
+
+                    <core-submenu id="players_submenu" icon="view-quilt" label="Плееры" >
+                        <template repeat="{{ player in players }}">
+                            <core-item label="{{player.name}}" horizontal center layout></core-item>
+                        </template>
+                    </core-submenu>
+
+                    <core-submenu id="designs_submenu" icon="theaters" label="Дизайны">
+                        <template repeat="{{ design in designs }}">
+                            <core-item label="{{design.name}}" horizontal center layout></core-item>
+                        </template>
+                    </core-submenu>
+
+                    <core-submenu opened active id="settings_menu" icon="settings" label="Инструменты">
+                        <core-item id="editor_submenu" label="Редактор" horizontal center layout></core-item>
+                        <core-item id="settings_submenu" label="Настройки" horizontal center layout active></core-item>
+                    </core-submenu>
+
+                </core-menu>
+
+            </core-header-panel>
+            <div id="div" tool>Rationale</div>
+            <core-pages selected="{{ $.main_menu.selected }}" selectedindex="{{ $.main_menu.selectedIndex }}" notap id="core_pages">
+
+                <section id="suite_editor">
+                    <b>Сюита</b>
+                    <core-item id="core_item" icon="assignment" label="{{ $.suites_submenu.selectedItem.label }}" horizontal center layout></core-item>
+                </section>
+
+                <section id="player_editor">
+                    <template id="pe_tmpl" bind="{{players as player}}">
+                    <b>Плеер</b>
+                        <span>egor {{player[0].name}}</span>
+                        <span>egor {{player[0].title}}</span>
+                        <span>egor {{player[0]._id}}</span>
+                        <ra-player-form id="ra_player_form" player="{{player}}"></ra-player-form>
+                    </template>
+                </section>
+
+                <section id="design_editor">
+                    <b>Дизайн</b>
+                    <core-item id="core_item" icon="view-quilt" label="{{ $.designs_submenu.selectedItem.label }}" horizontal center layout></core-item>
+                    <core-item id="core_item" icon="view-quilt" label="{{ players.name }}" horizontal center layout></core-item>
+                </section>
+
+                <section id="settings_editor">
+                    <b>Инструменты</b>
+                </section>
+            </core-pages>
+        </core-scaffold>
+    </template>
+<script>
+    Polymer('ra-basic-layout', {
+        ready: function () {
+            // debugger;
+            if (typeof(Tracker) !== "undefined") { // This is Meteor application? If yes, autotrack models
+                Tracker.autorun(function () {
+                    this.players = Players.find().fetch();
+                    this.designs = Designs.find().fetch();
+                    this.suites = Suites.find().fetch();
+                    this.config = Config.find().fetch();
+                }.bind(this)); // see about "bind this": http://stackoverflow.com/questions/6188861/javascript-anonymous-function-parameter-passing
+            }
+        }
+    });
+</script>
+</polymer-element>

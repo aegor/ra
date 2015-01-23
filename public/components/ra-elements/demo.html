@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head lang="ru">
+    <meta charset="UTF-8">
+    <title>basic-model</title>
+    <script type="text/javascript" src="../webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="../polymer/polymer.html">
+    <link rel="import" href="../ra-elements/ra-basic-layout.html">
+    <style>
+
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+    </style>
+</head>
+<body>
+
+        <ra-basic-layout id="ra-basic-layout">
+        </ra-basic-layout>
+
+
+    <script>
+        window.addEventListener('polymer-ready', function(e) {
+            var ra = document.querySelector('#ra-basic-layout');
+/*            var pf = document.querySelector('#ra-player-form');
+            var cs = document.querySelector('#core_scaffold');*/
+            ra.players = [
+            {
+                _id: "Y9NsSkA5nmDZRrHL3",
+                name: 'pl1',
+                title: 'Входная галерея',
+                designId: '',
+                type: '720p-6x1-h',
+                ip: '10.7.0.1',
+                login: 'egor',
+                password: 'iehfkf3432'
+            },
+
+            {
+                _id: "kCtv64ijBbN57wAWT",
+                name: 'pl2',
+                title: 'Кофейня',
+                designId: '',
+                type: '720p-4x1-v',
+                ip: '10.7.0.2',
+                login: 'rationale',
+                password: 'iehfkf3432'
+            },
+
+            {
+                _id: "NfZBHEDeWbKCbfvfK",
+                name: 'pl3',
+                title: 'Полки кофейня',
+                designId: '',
+                type: '720p-5x1-h',
+                ip: '10.7.0.3',
+                login: 'egor',
+                password: 'iehfkf3432'
+            },
+
+            {
+                _id: "QXpGCJfcfGXRNT4bB",
+                name: 'pl4',
+                title: 'Полки Ф1',
+                designId: '',
+                type: '720p-5x1-h',
+                ip: '10.7.0.4',
+                login: 'egor',
+                password: 'iehfkf3432'
+            },
+
+            {
+                _id: "QSxBCY44aPjN3CHND",
+                name: 'pl5',
+                title: 'Полки бар',
+                designId: '',
+                type: '720p-5x1-h',
+                ip: '10.7.0.5',
+                login: 'egor',
+                password: 'iehfkf3432'
+            },
+
+            {
+                _id: "dxqgrmtMc36gdQ9Nc",
+                name: 'pl6',
+                title: 'Бар левый',
+                designId: '',
+                type: '720p-3x2-h',
+                ip: '10.7.0.6',
+                login: 'egor',
+                password: 'iehfkf3432'
+            },
+
+            {
+                _id: "xadMCAmYariNFt4Ht",
+                name: 'pl7',
+                title: 'Бар правый',
+                designId: '',
+                type: '720p-2x2-h',
+                ip: '10.7.0.7',
+                login: 'egor',
+                password: 'iehfkf3432'
+            },
+
+            {
+                _id: "FqhNYutdJmo3eiB9x",
+                name: 'pl8',
+                title: 'Бар проход',
+                designId: '',
+                type: '720p-4x1-h',
+                ip: '10.7.0.8',
+                login: 'egor',
+                password: 'iehfkf3432'
+            },
+
+            {
+                _id: "pk3ZqZnfP4Ldd9tyS",
+                name: 'pl9',
+                title: 'Зеркала',
+                designId: '',
+                type: '720p-3x1-v',
+                ip: '10.7.0.9',
+                login: 'egor',
+                password: 'iehfkf3432'
+            },
+
+            {
+                _id: "3mJk8wHguE9egDPxE",
+                name: 'pl10',
+                title: 'Витрина',
+                designId: '',
+                type: '720p-3x1-v',
+                ip: '10.7.0.10',
+                login: 'egor',
+                password: 'iehfkf3432'
+            }
+            ];
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+:host {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+:host::shadow > io-object {
+  display: block;
+}
+:host > #backBtn {
+  cursor: pointer;
+}
+:host > #backBtn > core-icon {
+  margin-top: -0.25em;
+  padding: 0;
+  vertical-align: middle;
+  width: 1.3em !important;
+  height: 1.3em !important;
+}
+:host /deep/ io-object::shadow > .io-bundle-label {
+  cursor: pointer;
+}

@@ -1,0 +1,23 @@
+{
+  "name": "show-and-tell",
+  "version": "0.5.0",
+  "homepage": "https://arodic.github.com/components/show-and-tell",
+  "authors": [
+    "Aleksandar Rodic <aleksandar.xyz@gmail.com>"
+  ],
+  "description": "Documentation by example for custom elements.",
+  "main": "show-and-tell.html",
+  "keywords": [
+    "input",
+    "polymer",
+    "web-components",
+    "UI",
+    "vector4",
+    "vector"
+  ],
+  "license": "Apache 2.0",
+  "dependencies": {
+    "polymer": "Polymer/polymer#~0.5.2",
+    "io-bundle": "arodic/io-bundle#~0.5.0"
+  }
+}

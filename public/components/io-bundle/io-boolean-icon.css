@@ -1,0 +1,12 @@
+:host > .io-bundle-value {
+  cursor: pointer;
+  width: 1em;
+  height: 1em;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+:host > .io-bundle-label {
+  cursor: pointer;
+}

@@ -1,0 +1,434 @@
+<!--
+Copyright (c) 2014 Aleksandar Rodic @arodic
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!--
+Nested menu with touch support and a simple API.
+
+Example:
+
+    <io-menu options="options"></io-menu>
+
+`options` attribute is an array with option attributes and suboptions:
+
+    options = [
+      { label: "Options", options: [
+        { label: "Option1", options: [
+          { label: "Suboption1", action: function() {} },
+          { label: "Suboption2", action: someFunction,
+          { label: "Suboption3", action: otherFunction, arguments: ['argument'] }
+        ] }
+      }
+    ]
+
+@element io-menu
+@homepage https://github.com/arodic/io-bundle
+@demo http://akirodic.com/components/io-bundle/demo.html
+@blurb Nested menu with touch support and a simple API.
+@status alpha
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="io-menu-option.html">
+
+<polymer-element name="io-menu" tabindex="0" class="io-bundle" oncontextmenu="return false;">
+  <template>
+    <link href="io-menu.css" rel="stylesheet" type="text/css" shim-shadowdom>
+    <template if="{{tooltip}}">
+      <div id="tooltip">{{tooltip}}</div>
+    </template>
+    <template if="{{clickmasked}}">
+      <div id="clickmask" on-tap="{{collapsefromClickMask}}"></div>
+    </template>
+    <io-string style="display: {{search ? 'block' : 'none'}}" id="search" value="{{searchString}}" updateImmediate></io-string>
+    <template if="{{expanded || noHide}}">
+      <template if="{{search}}">
+        <hr />
+      </template>
+      <template repeat="{{option in (filteredOptions.length ? filteredOptions : options)}}">
+        <template if="{{option.type == 'divider'}}"><hr /></template>
+        <template if="{{option.type != 'divider'}}">
+          <io-menu-option
+            options="{{option.options}}"
+            label="{{option.label}}"
+            icon="{{option.icon}}"
+            action="{{option.action}}"
+            button="{{option.button}}"
+            arguments="{{option.arguments}}"
+            tooltip="{{option.tooltip}}"
+            autoExpand="{{option.autoExpand || autoExpand}}"
+            horizontal="{{option.horizontal}}">
+          </io-menu-option>
+        </template>
+      </template>
+    </template>
+  </template>
+  <script type="text/javascript">
+  (function() {
+    var x = 0, y = 0, v = 0, tempV, tempX, tempY;
+    var previousOption;
+    var previousParent;
+    var timeout;
+    var hoveredMenu;
+
+    var MARGIN = 14;
+
+    /**
+     * Fired when menu action is executed.
+     * 
+     * @event io-menu-option-clicked
+     * @param {Object} menu
+     */
+
+    Polymer({
+      publish: {
+
+        /**
+         * Array of item objects.
+         *
+         * @attribute options
+         * @type array
+         * @default []
+         */
+        options: null,
+
+        /**
+         * Expanded state
+         *
+         * @attribute expanded
+         * @type boolean
+         * @default true
+         */
+        expanded: {value: false, reflect: true},
+
+        /**
+         * Expand on pointer hover
+         *
+         * @attribute autoExpand
+         * @type boolean
+         * @default false
+         */
+        autoExpand: {value: false, reflect: true},
+
+        /**
+         * Keep visible when not expanded.
+         *
+         * @attribute noHide
+         * @type boolean
+         * @default false
+         */
+        noHide: {value: false, reflect: true},
+
+        /**
+         * Number of milliseconds before swithcing options when cursor is moving sideways.
+         *
+         * @attribute holdTime
+         * @type number
+         * @default 500
+         */
+        holdTime: 500,
+
+        /**
+         * horizontal orientation
+         *
+         * @attribute horizontal
+         * @type boolean
+         * @default false
+         */
+        horizontal: {value: false, reflect: true},
+
+        // TODO
+        context: {value: false, reflect: true},
+        contextParent: null,
+
+        // TODO: change to disabled reflected
+        enabled: true,
+        
+        /**
+         * Should primary button activate the menu
+         *
+         * @attribute usePrimary
+         * @type boolean
+         * @default false
+         */
+        usePrimary: {value: false, reflect: true},
+
+        /**
+         * Should opening the menu require ctrl key to be pressed?
+         *
+         * @attribute requireCtrl
+         * @type boolean
+         * @default false
+         */
+        requireCtrl: {value: false, reflect: true},
+
+        /**
+         * TODO
+         */
+        search: {value: false, reflect: true},
+        searchString: {value: "", reflect: true},
+        filteredOptions: [],
+        /**
+         * Tooltip to be displayed with the option
+         *
+         * @attribute tooltip
+         * @type string
+         * @default ''
+         */
+        tooltip: ''
+      },
+
+      isSubmenu: false,
+      optionElems: null,
+      clickmasked: false,
+
+      eventDelegates: {
+        'touchstart': 'onDown',
+        'mousedown': 'onDown',
+        'mousemove': 'onHover',
+        'touchmove': 'onHover',
+        'io-menu-option-clicked': 'collapse'
+      },
+      ready: function() {
+        window.addEventListener('scroll', this.collapse.bind(this));
+        this._expand = this.expand.bind(this);
+        this._collapse = this.collapse.bind(this);
+        this._expandPrimary = this.expandPrimary.bind(this);
+        this._animate = this.animate.bind(this);
+      },
+      detached: function() {
+        this.stopAnimation();
+      },
+      startAnimation: function() {
+        this.playing = true;
+        this.animate();
+      },
+      stopAnimation: function() {
+        this.playing = false;
+      },
+      animate: function() {
+        if (!this.playing) return;
+        this.scroll();
+        requestAnimationFrame(this._animate);
+      },
+      onHover: function(event) {
+        event.stopPropagation();
+        var option = this.getHoveredItem(event);
+        hoveredMenu = this;
+        if (option && option != previousOption && this.autoExpand) {
+          this.expanded = true;
+          clearTimeout(timeout);
+          if (v > 0 || option.parentNode != previousParent) {
+            previousOption = option;
+            previousParent = option.parentNode;
+            this.expandOption(option);
+          } else {
+            timeout = setTimeout(function() {
+              previousOption = option;
+              previousParent = option.parentNode;
+              this.expandOption(option);
+            }.bind(this), this.holdTime);
+          }
+        }
+      },
+      onDown: function(event) {
+        this.expanded = true;
+        var option = this.getHoveredItem(event);
+        if (option) {
+          previousOption = option;
+          previousParent = option.parentNode;
+          this.expandOption(option);
+        }
+      },
+      getHoveredItem: function(event) {
+        event.stopPropagation();
+        if (event.changedTouches) event = event.changedTouches[0];
+
+        // var rect = this.getBoundingClientRect();
+        // console.log(rect.top, tempY);
+        // if (rect.top < 0 && tempY < 100) {
+        //   var style = window.getComputedStyle(this);
+        //   this.style.top = parseInt(style.top) + 2 + 'px';
+        // }
+
+        tempX = event.pageX - window.pageXOffset; // event.clientX
+        tempY = event.pageY - window.pageYOffset; // event.clientY
+
+        if (this.horizontal) {
+          tempV = Math.abs(tempX - x) - Math.abs(tempY - y);
+        } else {
+          tempV = Math.abs(tempY - y) - Math.abs(tempX - x);
+        }
+        v = tempV;
+        x = tempX;
+        y = tempY;
+        //
+        this.updateOptionElems();
+        if (this.optionElems && this.optionElems.length) {
+          for (var i = 0; i < this.optionElems.length; i++) {
+            if (
+              this.optionElems[i].rect &&
+              this.optionElems[i].rect.left <= x &&
+              (this.optionElems[i].rect.left + this.optionElems[i].rect.width) >= x &&
+              this.optionElems[i].rect.top <= y &&
+              (this.optionElems[i].rect.top + this.optionElems[i].rect.height) >= y
+            ) {
+              return this.optionElems[i];
+            }
+          }
+        }
+      },
+
+      collapsefromClickMask: function(event) {
+        event.stopPropagation();
+        this.collapse(event);
+      },
+
+      collapse: function(event) {
+        this.expanded = false;
+        previousOption = null;
+        previousParent = null;
+        this.collapseOptions();
+      },
+      collapseOptions: function() {
+        if (this.optionElems && this.optionElems.length) {
+          for (var i = this.optionElems.length; i--;) {
+            this.optionElems[i].expanded = false;
+          }
+        }
+      },
+
+      expand: function(event) {
+        if (!this.enabled) return; //todo
+        if (this.requireCtrl && !event.ctrlKey) return; //todo
+        event.preventDefault();
+        this.expanded = true;
+        if (this._contextParent) {
+          var rect = this._contextParent.getBoundingClientRect();
+          this.style.top = event.y + 2 - rect.top + 'px';
+          this.style.left = event.x + 2 - rect.left + 'px';
+        }
+      },
+      expandPrimary: function(event) {
+        if (!this.usePrimary) return;
+        this.expand(event);
+      },
+      expandOption: function(option) {
+        option._menu = option.shadowRoot.querySelector('io-menu');
+        if (option._menu) option._menu.collapseOptions();
+        this.collapseOptions();
+        option.expanded = true;
+        this.fire('io-menu-option-expanded', {
+          option: option,
+          label: option.label,
+          action: option.action,
+          arguments: option.arguments
+        });
+      },
+      expandedChanged: function() {
+        if (this.expanded) {
+          this.style.visibility = 'hidden';
+          setTimeout(this.nudge.bind(this), 1);
+          if (this.search) {
+            this.searchString = '';
+            this.$.search.focusAction();
+          }
+          if (this.parentNode.localName || this.parentNode.host.localName !== 'io-menu-option') {
+            this.clickmasked = true;
+          }
+          this.startAnimation();
+        } else {
+          this.clickmasked = false;
+          this.stopAnimation();
+        }
+      },
+      nudge: function() {
+        var rect = this.getBoundingClientRect();
+        var style = window.getComputedStyle(this);
+        // nudge up
+        var bottomDist = rect.bottom + MARGIN - window.innerHeight;
+        if (bottomDist > 0) {
+          this.style.top = parseInt(style.top) - bottomDist + 'px';
+        }
+        // nudge left
+        var rightDist = rect.right + MARGIN - window.innerWidth;
+        if (rightDist > 0) {
+          if (this.parentNode.localName || this.parentNode.host.localName == 'io-menu-option') {
+            this.style.left = - rect.width + 'px';
+          } else {
+            this.style.left = parseInt(style.left) - rightDist + 'px';
+          }
+        };
+
+        this.style.visibility = 'visible';
+      },
+
+      scroll: function() {
+        if (hoveredMenu != this) return;
+        var TOPMARGIN = MARGIN + 32;
+        var rect = this.getBoundingClientRect();
+        var style = window.getComputedStyle(this);
+        if (tempY < 100 && rect.top < TOPMARGIN) {
+          var scrollSpeed = (100 - tempY) / 2000;
+          var overflow = rect.top - TOPMARGIN;
+          this.style.top = parseInt(style.top) - Math.ceil(overflow * scrollSpeed) + 1 + 'px';
+        } else if (tempY > window.innerHeight - 100 && rect.bottom > window.innerHeight - MARGIN) {
+          var scrollSpeed = (100 - (window.innerHeight - tempY)) / 2000;
+          var overflow = (rect.bottom - window.innerHeight) + MARGIN;
+          this.style.top = parseInt(style.top) - Math.ceil(overflow * scrollSpeed) - 1 + 'px';
+        }
+      },
+
+      updateOptionElems: function() {
+        this.optionElems = this.querySelectorAll('* /deep/ io-menu-option');
+        for (var i = this.optionElems.length; i--;) {
+          this.optionElems[i].update();
+        }
+      },
+      contextChanged: function() {
+        this.autoExpand = this.context;
+        if (this.context) {
+          this._contextParent = this.contextParent || this.parentNode.host || this.parentNode;
+          this._contextParent.addEventListener('contextmenu', this._expand);
+          this._contextParent.addEventListener('click', this._expandPrimary);
+        } else {
+          this._contextParent.removeEventListener('contextmenu', this._expand);
+          this._contextParent.removeEventListener('click', this._expandPrimary);
+          this._contextParent = null;
+        }
+      },
+
+      filterOptions: function(options) {
+        var filteredOptions = [];
+        if (this.searchString && options.length) {
+          options.forEach(function(option) {
+            // TODO: use regex
+            if (option.label && option.label.toLowerCase().search(this.searchString.toLowerCase()) != -1) {
+              filteredOptions.push(option);
+            }
+            if (option.options) {
+              filteredOptions = filteredOptions.concat(this.filterOptions(option.options));
+            }
+          }.bind(this));
+        }
+        return filteredOptions;
+      },
+      searchStringChanged: function() {
+        this.filteredOptions = this.filterOptions(this.options);
+      }
+    });
+
+  })();
+  </script>
+</polymer-element>

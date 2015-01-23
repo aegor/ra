@@ -1,0 +1,20 @@
+:host {
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+  overflow: visible;
+}
+:host > .io-bundle-value {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+:host > io-menu {
+  position: absolute;
+  display: none;
+}
+:host > io-menu[expanded] {
+  display: inline-block;
+}

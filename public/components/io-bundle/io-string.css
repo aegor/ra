@@ -1,0 +1,13 @@
+:host > .io-bundle-value {
+  overflow-x: hidden;
+  white-space: nowrap;
+  cursor: text;
+}
+:host > .io-bundle-value:empty {
+  min-width: 0.5em;
+  vertical-align: top;
+}
+:host > .io-bundle-value:empty:after {	
+  content: "{{placeholder}}";
+  opacity: 0.25;
+}

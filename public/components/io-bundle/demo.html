@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+  <title>io-bundle demo</title>
+  <script src="../webcomponentsjs/webcomponents.js"></script>
+  <link rel="import" href="../polymer/polymer.html">
+  <link rel="import" href="../show-and-tell/show-and-tell.html">
+  <link rel="import" href="io-bundle.html">
+  <link rel="stylesheet" href="theme.css" shim-shadowdom>
+  <style type="text/css">
+    html {
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+    body{
+      width: 100%;
+      height: 100%;
+      margin: 0.5rem;
+      font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      background: #f3eee8;
+    }
+    .demo {
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      background: white;
+      position: relative;
+    }
+    .demo > :nth-child(2){
+      margin: 2em;
+    }
+  </style>
+</head>
+<body unresolved>
+  <h2>io-bundle Demos</h2>
+  <p>A collection of I/O web components for various data types.</p>
+  <p>Use the interactive tag inspector to experiment with attributes.</p>
+  <p>Documentation is available <a href="./index.html">here</a>.</p>
+  <div class="demo">
+    <show-and-tell></show-and-tell>
+    <io-base></io-base>
+  </div>
+  <div class="demo">
+    <show-and-tell></show-and-tell>
+    <io-boolean-icon></io-boolean-icon>
+  </div>
+  <div class="demo">
+    <show-and-tell></show-and-tell>
+    <io-boolean></io-boolean>
+  </div>
+  <div class="demo">
+    <show-and-tell></show-and-tell>
+    <io-number value="1337"></io-number>
+  </div>
+  <div class="demo">
+    <show-and-tell></show-and-tell>
+    <io-string value="Hello string"></io-string>
+  </div>
+  <div class="demo">
+    <show-and-tell></show-and-tell>
+    <io-options></io-options>
+  </div>
+  <div class="demo">
+    <show-and-tell></show-and-tell>
+    <io-object expanded></io-object>
+  </div>
+  <div class="demo">
+    <show-and-tell></show-and-tell>
+    <io-inspector></io-inspector>
+  </div>
+  <div class="demo" style="height: 200px;">
+    <show-and-tell></show-and-tell>
+    <io-menu autoExpand noHide search></io-menu>
+  </div>
+  <script>
+    var object, menu, options, inspector;
+    window.addEventListener('polymer-ready', function() {
+      object = document.querySelector('io-object');
+      options = document.querySelector('io-options');
+      inspector = document.querySelector('io-inspector');
+      menu = document.querySelector('io-menu');
+
+      object.value = ['one', true, 1];
+      options.options = [1, 2, ['three', 3]];
+      options.value = 1;
+      inspector.value = document.body;
+      menu.options = [
+        { label: 'Options', icon: 'close', options: [
+          { label: 'Option1', options: [
+            { label: 'Suboption1', action: function() { alert('Suboption1'); } },
+            { label: 'Suboption2', action: function(msg) { alert(msg); }, arguments: ['Suboption2'] },
+            { label: 'Suboption3', action: function(msg1, msg2) { alert(msg1 + msg2); }, arguments: ['Suboption', '3'] }
+          ] },
+          { label: 'Option2', options: [
+            { label: 'Suboption4', action: alert, arguments: ['Suboption4'] },
+            { label: 'Suboption5', action: alert, arguments: ['Suboption', '5'] },
+            { label: 'Suboption6', action: alert, arguments: 'Suboption 6' }
+          ] },
+          { label: 'Option3', options: [
+            { label: 'suboption7' },
+            { label: 'suboption8' },
+            { label: 'suboption9' }
+          ] }
+        ] },
+        { type: 'divider' },
+        { label: 'Suboptions', autoExpand: false, options: [
+          { label: 'Suboption1', options: [
+            { label: 'Suboption2', horizontal: true, options: [
+              { label: 'suboption3a' },
+              { label: 'suboption3b' },
+              { label: 'suboption3c' },
+              { label: 'Suboption3d', options: [
+                { label: 'Suboption4', options: [
+                  { label: 'Suboption5', options: [
+                    { label: 'Suboption6' }
+                  ] } 
+                ] } 
+              ] } 
+            ] } 
+          ] } 
+        ] }
+      ];
+    });
+    setTimeout(function(){
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-53420116-1', 'auto');
+      ga('send', 'pageview');
+    },1000);
+  </script>
+</body>
+</html>
