@@ -78,36 +78,36 @@
                         <input id="corefield-input" placeholder="поиск..." is="core-input" flex>
                     </core-field>
                 </core-toolbar>
-                <core-menu selected="0" id="main_menu" valueattr="sel" on-core-select="{{mainMenuSelected}}">
+                <core-menu  id="main_menu"  on-core-select="{{mainMenuSelected}}">
 
                     <core-submenu id="suites_submenu" icon="assignment" label="Сюиты" on-core-select="{{suitesMenuSelected}}">
                         <template repeat="{{ suite in suites }}">
-                            <core-item sel="{{suite.name}}" label="{{suite.name}}" horizontal center layout active></core-item>
+                            <core-item label="{{suite.name}}" horizontal center layout active></core-item>
                         </template>
                     </core-submenu>
 
                     <core-submenu id="players_submenu" icon="view-quilt" label="Плееры" on-core-select="{{playersMenuSelected}}">
                         <template repeat="{{ player in players }}">
-                            <core-item sel="{{player.name}}" label="{{player.name}}" horizontal center layout></core-item>
+                            <core-item label="{{player.name}}" horizontal center layout></core-item>
                         </template>
                     </core-submenu>
 
                     <core-submenu id="designs_submenu" icon="theaters" label="Дизайны" on-core-select="{{designsMenuSelected}}">
                         <template repeat="{{ design in designs }}">
-                            <core-item sel="{{design.name}}" label="{{design.name}}" horizontal center layout></core-item>
+                            <core-item label="{{design.name}}" horizontal center layout></core-item>
                         </template>
                     </core-submenu>
 
                     <core-submenu opened active id="settings_submenu" icon="settings" label="Инструменты" on-core-select="{{settingsMenuSelected}}">
-                        <core-item id="editor_submenu" sel="ra_editor" label="Редактор" horizontal center layout></core-item>
-                        <core-item id="settings_submenu" sel="ra_settings" label="Настройки" horizontal center layout active></core-item>
+                        <core-item id="editor_submenu" label="Редактор" horizontal center layout></core-item>
+                        <core-item id="settings_submenu" label="Настройки" horizontal center layout active></core-item>
                     </core-submenu>
 
                 </core-menu>
 
             </core-header-panel>
             <div id="div" tool>Rationale</div>
-            <core-pages selected="{{ $.main_menu.selected }}" selectedindex="{{ $.main_menu.selectedIndex }}" notap id="core_pages">
+<!--            <core-pages selected="{{ $.main_menu.selected }}" selectedindex="{{ $.main_menu.selectedIndex }}" notap id="core_pages">
 
                 <section id="suite_editor">
                     <b>Сюита</b>
@@ -133,7 +133,7 @@
                 <section id="settings_editor">
                     <b>Инструменты</b>
                 </section>
-            </core-pages>
+            </core-pages>-->
         </core-scaffold>
     </template>
 <script>
@@ -149,20 +149,20 @@
                 }.bind(this)); // see about "bind this": http://stackoverflow.com/questions/6188861/javascript-anonymous-function-parameter-passing
             }
         },
-        mainMenuSelected: function () {
-            console.log("main menu selected: ", this.$.main_menu.selectedItem.label);
+        mainMenuSelected: function (e, detail, sender) {
+            e.detail.isSelected && console.log("main menu selected: ", e.target.selectedItem.label);
         },
-        playersMenuSelected: function () {
-            console.log("players menu selected: ", this.$.players_submenu.selectedItem.label);
+        playersMenuSelected: function (e, detail, sender) {
+            e.detail.isSelected && console.log("players menu selected: ", e.target.selectedItem.label);
         },
-        suitesMenuSelected: function () {
-            console.log("suites menu selected: ", this.$.suites_submenu.selectedItem.label);
+        suitesMenuSelected: function (e, detail, sender) {
+            e.detail.isSelected && console.log("suites menu selected: ", e.target.selectedItem.label);
         },
-        designsMenuSelected: function () {
-            console.log("designs menu selected: ", this.$.designs_submenu.selectedItem.label);
+        designsMenuSelected: function (e, detail, sender) {
+            e.detail.isSelected && console.log("designs menu selected: ", e.target.selectedItem.label);
         },
-        settingsMenuSelected: function () {
-            console.log("settings menu selected: ", this.$.settings_submenu.selectedItem.label);
+        settingsMenuSelected: function (e, detail, sender) {
+            e.detail.isSelected && console.log("settings menu selected: ", e.target.selectedItem.label);
         }
     });
 </script>
