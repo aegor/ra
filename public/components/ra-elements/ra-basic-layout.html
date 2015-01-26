@@ -10,9 +10,14 @@
 <link rel="import" href="../core-icons/core-icons.html">
 <link rel="import" href="../core-menu/core-submenu.html">
 <link rel="import" href="../core-pages/core-pages.html">
-<link rel="import" href="../ra-elements/ra-player-form.html">
+<link rel="import" href="../font-roboto/roboto.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="ra-form-layout.html">
 
-<polymer-element name="ra-basic-layout" attributes="players designs suites config">
+<polymer-element
+        name="ra-basic-layout"
+        attributes="plSelected deSelected suSelected playerLayout suiteLayout designLayout suiteFormValues playerFormValues designFormValues players designs suites config"
+        >
 
     <template>
         <style>
@@ -68,6 +73,77 @@
                 top: 15.0994338989258px;
                 position: absolute;
             }*/
+            /*note the class ra-group-box is assign to the containing div for each field group*/
+/* ra-form-layout css */
+            ra-form-layout /deep/ .ra-group-box {
+                border-style:dotted;
+                border-width:1px;
+                border-color: green;
+                margin:5px;
+                padding:5px 20px;
+                width: 50%;
+            }
+
+            /*note the class ra-field-box is assign to the containing div for each field*/
+
+            ra-form-layout /deep/ .ra-field-box {
+                border-style:dotted;
+                border-width:1px;
+                margin:5px;
+                padding:5px 20px;
+                width: 200px;
+            }
+
+            /*note the element assigns an id equal to the fieldAttribute value to the containing div for each
+            field so each field can be styled individually.
+            */
+
+            ra-form-layout /deep/ #slider {
+                background-color: grey;
+                width:400px;
+            }
+
+            html /deep/ paper-dropdown-menu {
+                box-sizing: border-box;
+                width: 170px;
+            }
+
+            html /deep/ core-menu {
+                box-sizing: border-box;
+                width: 170px;
+            }
+
+            paper-item {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            html /deep/ core-collapse {
+                border: 1px solid #ccc;
+                padding: 8px;
+            }
+
+            html /deep/ core-overlay {
+                border: 1px solid #ccc;
+                padding: 8px;
+                background: #fff;
+            }
+
+            .constrained-height {
+                height: 150px;
+            }
+
+            .colored {
+                color: #0f9d58;
+            }
+
+            .dropdown.colored::shadow #ripple,
+            .dropdown.colored::shadow #background {
+                border: 1px solid #0f9d58;
+                background-color: #b7e1cd;
+            }
+/* ra-form-layout end css */
 
         </style>
         <core-scaffold id="core_scaffold">
@@ -107,39 +183,51 @@
 
             </core-header-panel>
             <div id="div" tool>Rationale</div>
-<!--            <core-pages selected="{{ $.main_menu.selected }}" selectedindex="{{ $.main_menu.selectedIndex }}" notap id="core_pages">
+            <core-pages selected="{{ $.main_menu.selected }}" selectedindex="{{ $.main_menu.selectedIndex }}" notap id="core_pages">
 
                 <section id="suite_editor">
-                    <b>Сюита</b>
-                    <core-item id="core_item" icon="assignment" label="{{ $.suites_submenu.selectedItem.label }}" horizontal center layout></core-item>
+                    <ra-form-layout id='suiteFormLayout' formItems="{{suiteLayout}}" formValues="{{suiteFormValues}}" loadexternal=false>
+                    </ra-form-layout>
+                    <template if="{{suSelected !== undefined}}">
+                        <paper-button id="suUpdate" raised on-click={{suUpdate}}>Готово</paper-button>
+                        <paper-button id="suNew" raised on-click={{suNew}}>Новый</paper-button>
+                        <paper-button id="suDelete" raised on-click={{suDelete}}>Удалить</paper-button>
+                    </template>
                 </section>
 
                 <section id="player_editor">
-                    <template id="pe_tmpl" bind="{{players as player}}">
-                    <b>Плеер</b>
-                        <span>egor {{player[0].name}}</span>
-                        <span>egor {{player[0].title}}</span>
-                        <span>egor {{player[0]._id}}</span>
-                        <ra-player-form id="ra_player_form" player="{{player}}"></ra-player-form>
-                    </template>
+                        <ra-form-layout id='playerFormLayout' formItems="{{playerLayout}}" formValues="{{playerFormValues}}" loadexternal=false>
+                            <div horizontal layout>
+                            </div>
+                        </ra-form-layout>
+                        <template if="{{plSelected !== undefined}}">
+                            <paper-button id="plUpdate" raised on-click={{plUpdate}}>Готово</paper-button>
+                            <paper-button id="plNew" raised on-click={{plNew}}>Новый</paper-button>
+                            <paper-button id="plDelete" raised on-click={{plDelete}}>Удалить</paper-button>
+                        </template>
                 </section>
 
                 <section id="design_editor">
                     <b>Дизайн</b>
-                    <core-item id="core_item" icon="view-quilt" label="{{ $.designs_submenu.selectedItem.label }}" horizontal center layout></core-item>
-                    <core-item id="core_item" icon="view-quilt" label="{{ players.name }}" horizontal center layout></core-item>
+                    <ra-form-layout id='designFormLayout' formItems="{{designLayout}}" formValues="{{designFormValues}}" loadexternal=false>
+                    </ra-form-layout>
+                    <template if="{{deSelected !== undefined}}">
+                        <paper-button id="deUpdate" raised on-click={{deUpdate}}>Готово</paper-button>
+                        <paper-button id="deNew" raised on-click={{deNew}}>Новый</paper-button>
+                        <paper-button id="deDelete" raised on-click={{deDelete}}>Удалить</paper-button>
+                    </template>
                 </section>
 
                 <section id="settings_editor">
                     <b>Инструменты</b>
                 </section>
-            </core-pages>-->
+            </core-pages>
         </core-scaffold>
     </template>
 <script>
     Polymer('ra-basic-layout', {
         ready: function () {
-            // debugger;
+
             if (typeof(Tracker) !== "undefined") { // This is Meteor application? If yes, autotrack models
                 Tracker.autorun(function () {
                     this.players = Players.find().fetch();
@@ -147,22 +235,170 @@
                     this.suites = Suites.find().fetch();
                     this.config = Config.find().fetch();
                 }.bind(this)); // see about "bind this": http://stackoverflow.com/questions/6188861/javascript-anonymous-function-parameter-passing
-            }
+            };
+            this.plSelected = undefined;
+            this.suSelected = undefined;
+            this.deSelected = undefined;
+            this.suiteFormValues = [];
+            this.playerFormValues = [];
+            this.designFormValues = [];
+
+            this.PlayerLayout = [
+                [
+                    {"fieldLabel":"ID", "fieldAttribute":"_id", "useControl":"input", "disabled":true, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Имя", "fieldAttribute":"name", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Описание", "fieldAttribute":"title", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"IP адрес", "fieldAttribute":"ip", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Логин", "fieldAttribute":"login", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Пароль", "fieldAttribute":"password", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Дизайн", "fieldAttribute":"designId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"three", "selectvalues":["one", "two", "three", "four"]},
+                    {"fieldLabel":"Тип", "fieldAttribute":"typeId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"three", "selectvalues":["one", "two", "three", "four"]},
+                ]
+            ];
+            this.DesignLayout = [
+                [
+                    {"fieldLabel":"ID", "fieldAttribute":"_id", "useControl":"input", "disabled":true, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Имя", "fieldAttribute":"name", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Описание", "fieldAttribute":"title", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"URL", "fieldAttribute":"origin", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Содержимое", "fieldAttribute":"content", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""}
+                ]
+            ];
+            this.SuiteLayout = [
+                [
+                    {"fieldLabel":"ID", "fieldAttribute":"_id", "useControl":"input", "disabled":true, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Имя", "fieldAttribute":"name", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Описание", "fieldAttribute":"title", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                    {"fieldLabel":"Соответствия", "fieldAttribute":"pairs", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""}
+                ]
+            ];
         },
         mainMenuSelected: function (e, detail, sender) {
             e.detail.isSelected && console.log("main menu selected: ", e.target.selectedItem.label);
         },
         playersMenuSelected: function (e, detail, sender) {
-            e.detail.isSelected && console.log("players menu selected: ", e.target.selectedItem.label);
+            if (e.detail.isSelected) {
+                that = this;
+
+                this.plSelected = parseInt(e.target.selected);
+                var pl =  this.players[this.plSelected];
+
+                this.PlayerLayout[0][0].value = pl._id;
+                this.PlayerLayout[0][1].value = pl.name;
+                this.PlayerLayout[0][2].value = pl.title;
+                this.PlayerLayout[0][3].value = pl.ip;
+                this.PlayerLayout[0][4].value = pl.login;
+                this.PlayerLayout[0][5].value = pl.password;
+                this.PlayerLayout[0][6].value = pl.designId;
+                var a = this.players[this.plSelected].typeId;
+                this.PlayerLayout[0][6].selectvalues = _.pluck(this.designs.filter(function (i) {return i.typeId === a}), "name");
+                this.PlayerLayout[0][7].selectvalues = _.pluck(this.types, "name");
+                this.PlayerLayout[0][7].value = pl.typeId;
+                console.log("players menu selected: ", this.players[this.plSelected]);
+                //debugger;
+                this.$.playerFormLayout.loadFormItems(this.PlayerLayout);
+            }
         },
         suitesMenuSelected: function (e, detail, sender) {
-            e.detail.isSelected && console.log("suites menu selected: ", e.target.selectedItem.label);
+            if (e.detail.isSelected) {
+                that = this;
+                this.suSelected = parseInt(e.target.selected);
+                var su =  this.suites[this.suSelected];
+
+                this.SuiteLayout[0][0].value = su._id;
+                this.SuiteLayout[0][1].value = su.name;
+                this.SuiteLayout[0][2].value = su.title;
+                this.SuiteLayout[0][3].value = su.pairs;
+                console.log("suites menu selected: ", e.target.selectedItem.label);
+                this.$.suiteFormLayout.loadFormItems(this.SuiteLayout);
+            }
         },
         designsMenuSelected: function (e, detail, sender) {
-            e.detail.isSelected && console.log("designs menu selected: ", e.target.selectedItem.label);
+            if (e.detail.isSelected) {
+                that = this;
+
+                this.deSelected = parseInt(e.target.selected);
+                var de =  this.designs[this.deSelected];
+
+                this.DesignLayout[0][0].value = de._id;
+                this.DesignLayout[0][1].value = de.name;
+                this.DesignLayout[0][2].value = de.title;
+                this.DesignLayout[0][3].value = de.origin;
+                this.DesignLayout[0][4].value = de.content;
+                console.log("players menu selected: ", e.target.selectedItem.label);
+                this.$.designFormLayout.loadFormItems(this.DesignLayout);
+            }
         },
         settingsMenuSelected: function (e, detail, sender) {
             e.detail.isSelected && console.log("settings menu selected: ", e.target.selectedItem.label);
+        },
+        plGetValues: function (){
+            var pl = JSON.parse(JSON.stringify(this.players[this.plSelected]));
+            pl._id = this.PlayerLayout[0][0].value;
+            pl.name = this.PlayerLayout[0][1].value;
+            pl.title = this.PlayerLayout[0][2].value;
+            pl.ip = this.PlayerLayout[0][3].value;
+            pl.login = this.PlayerLayout[0][4].value;
+            pl.password = this.PlayerLayout[0][5].value;
+            pl.designId = this.PlayerLayout[0][6].value;
+            pl.typeId = this.PlayerLayout[0][7].value;
+            return pl;
+        },
+        plUpdate: function (a,b,c){
+            this.players[this.plSelected] = this.plGetValues();
+            console.log(this.players[this.plSelected]);
+        },
+        plNew: function (a,b,c){
+            this.players.push(this.plGetValues());
+            console.log(this.players);
+            console.log("plNew:", c.id);
+        },
+        plDelete: function (a,b,c){
+            this.players.splice([this.plSelected],1);
+            console.log(this.players);
+        },
+        deGetValues: function (){
+            var de = JSON.parse(JSON.stringify(this.designs[this.deSelected]));
+            de._id = this.DesignLayout[0][0].value;
+            de.name = this.DesignLayout[0][1].value;
+            de.title = this.DesignLayout[0][2].value;
+            de.origin = this.DesignLayout[0][3].value;
+            de.content = this.DesignLayout[0][4].value;
+            return de;
+        },
+        deUpdate: function (a,b,c){
+            this.designs[this.deSelected] = this.deGetValues();
+            console.log(this.designs[this.deSelected]);
+        },
+        deNew: function (a,b,c){
+            this.designs.push(this.deGetValues());
+            console.log(this.designs);
+            console.log("deNew:", c.id);
+        },
+        deDelete: function (a,b,c){
+            this.designs.splice([this.deSelected],1);
+            console.log(this.designs);
+        },
+        suGetValues: function (){
+            var su = JSON.parse(JSON.stringify(this.suites[this.suSelected]));
+            su._id = this.SuiteLayout[0][0].value;
+            su.name = this.SuiteLayout[0][1].value;
+            su.title = this.SuiteLayout[0][2].value;
+            su.pairs = this.SuiteLayout[0][3].value;
+            return su;
+        },
+        suUpdate: function (a,b,c){
+            this.suites[this.suSelected] = this.suGetValues();
+            console.log(this.suites[this.suSelected]);
+        },
+        suNew: function (a,b,c){
+            this.suites.push(this.suGetValues());
+            console.log(this.suites);
+            console.log("suNew:", c.id);
+        },
+        suDelete: function (a,b,c){
+            this.suites.splice([this.suSelected],1);
+            console.log(this.suites);
         }
     });
 </script>

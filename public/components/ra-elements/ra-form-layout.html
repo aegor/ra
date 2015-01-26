@@ -23,7 +23,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../paper-dropdown/paper-dropdown.html">
 <link rel="import" href="../core-menu/core-menu.html">
 <link rel="import" href="../paper-item/paper-item.html">
-<link rel="import" href="../core-ajax/core-ajax.html">
 <!--
 Element provides a layout of input elements i.e a form. The form may be generated from a json file.
 If used the json file must be in the same directory as the invoking page and must be named formitems.json
@@ -49,7 +48,7 @@ Techniques illustrated:
   -- locating the path of the invoking page
 -->
 
-<polymer-element name="ra-form-layout">
+<polymer-element name="ra-form-layout" attributes="formItems formValues">
     <template>
         <div id='container'>
             <template repeat="{{formGroup, i in formItems}}">
@@ -109,9 +108,6 @@ Techniques illustrated:
                     </template>
                 </div>
             </template>
-            <core-ajax id="ajax" url="{{layoutPath}}" on-core-response="{{formItemsLoaded}}" response="{{ajaxResponse}}"
-                       handleAs="json">
-            </core-ajax>
         </div>
     </template>
     <script>
@@ -147,18 +143,19 @@ Techniques illustrated:
                  * @type object
                  * @default empty
                  */
-                formValues: {},
+                formValues: {}
             }, // end publish
 
             ready: function () {
-                if (this.loadexternal) {
-                    this.formItems = [];
-                    var path = window.location.pathname;
-                    var directory = path.substring(0, path.lastIndexOf('/'));
-                    this.layoutPath = directory + '/formitems.json';
-                    this.$.ajax.go();
-                }
+//                this.formItems = window.playerFormLayouts;
+                this.updateFormValues();
             }, // end ready
+
+            loadFormItems: function (items) {
+                this.formItems = items;
+                this.updateFormValues();
+                this.refreshLabels();
+            }, // end loadFormItems
 
             updateFormValues: function () {
                 for (i = 0; i < this.formItems.length; ++i) {
@@ -186,10 +183,6 @@ Techniques illustrated:
                 this.refreshLabels();
             }, // end refreshFormResults
 
-            formItemsLoaded: function () {
-                this.formItems = this.ajaxResponse.slice(0);
-                this.updateFormValues();
-            }, // end formItemsLoaded
 
             /**
              * Invoke this method to disable or enable fields in the form

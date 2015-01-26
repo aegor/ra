@@ -3,6 +3,7 @@
 <head lang="ru">
     <meta charset="UTF-8">
     <title>basic-model</title>
+    <script type="text/javascript" src="underscore.min.js"></script>
     <script type="text/javascript" src="../webcomponentsjs/webcomponents.js"></script>
     <link rel="import" href="../polymer/polymer.html">
     <link rel="import" href="ra-basic-layout.html">
@@ -17,21 +18,17 @@
     </style>
 </head>
 <body>
-
-        <ra-basic-layout id="ra-basic-layout">
-        </ra-basic-layout>
-
-
-    <script>
-        window.addEventListener('polymer-ready', function(e) {
-            var ra = document.querySelector('#ra-basic-layout');
-            ra.players = [
+<ra-basic-layout id="ra-basic-layout"></ra-basic-layout>
+<script>
+    window.addEventListener('polymer-ready', function (e) {
+        var ra = document.querySelector('#ra-basic-layout');
+        ra.players = [
             {
                 _id: "Y9NsSkA5nmDZRrHL3",
                 name: 'pl1',
                 title: 'Входная галерея',
                 designId: '',
-                type: '720p-6x1-h',
+                typeId: '720p-6x1-h',
                 ip: '10.7.0.1',
                 login: 'egor',
                 password: 'iehfkf3432'
@@ -42,7 +39,7 @@
                 name: 'pl2',
                 title: 'Кофейня',
                 designId: '',
-                type: '720p-4x1-v',
+                typeId: '720p-4x1-v',
                 ip: '10.7.0.2',
                 login: 'rationale',
                 password: 'iehfkf3432'
@@ -53,7 +50,7 @@
                 name: 'pl3',
                 title: 'Полки кофейня',
                 designId: '',
-                type: '720p-5x1-h',
+                typeId: '720p-5x1-h',
                 ip: '10.7.0.3',
                 login: 'egor',
                 password: 'iehfkf3432'
@@ -64,7 +61,7 @@
                 name: 'pl4',
                 title: 'Полки Ф1',
                 designId: '',
-                type: '720p-5x1-h',
+                typeId: '720p-5x1-h',
                 ip: '10.7.0.4',
                 login: 'egor',
                 password: 'iehfkf3432'
@@ -75,7 +72,7 @@
                 name: 'pl5',
                 title: 'Полки бар',
                 designId: '',
-                type: '720p-5x1-h',
+                typeId: '720p-5x1-h',
                 ip: '10.7.0.5',
                 login: 'egor',
                 password: 'iehfkf3432'
@@ -86,7 +83,7 @@
                 name: 'pl6',
                 title: 'Бар левый',
                 designId: '',
-                type: '720p-3x2-h',
+                typeId: '720p-3x2-h',
                 ip: '10.7.0.6',
                 login: 'egor',
                 password: 'iehfkf3432'
@@ -97,7 +94,7 @@
                 name: 'pl7',
                 title: 'Бар правый',
                 designId: '',
-                type: '720p-2x2-h',
+                typeId: '720p-2x2-h',
                 ip: '10.7.0.7',
                 login: 'egor',
                 password: 'iehfkf3432'
@@ -108,7 +105,7 @@
                 name: 'pl8',
                 title: 'Бар проход',
                 designId: '',
-                type: '720p-4x1-h',
+                typeId: '720p-4x1-h',
                 ip: '10.7.0.8',
                 login: 'egor',
                 password: 'iehfkf3432'
@@ -119,7 +116,7 @@
                 name: 'pl9',
                 title: 'Зеркала',
                 designId: '',
-                type: '720p-3x1-v',
+                typeId: '720p-3x1-v',
                 ip: '10.7.0.9',
                 login: 'egor',
                 password: 'iehfkf3432'
@@ -130,13 +127,177 @@
                 name: 'pl10',
                 title: 'Витрина',
                 designId: '',
-                type: '720p-3x1-v',
+                typeId: '720p-3x1-v',
                 ip: '10.7.0.10',
                 login: 'egor',
                 password: 'iehfkf3432'
             }
-            ];
-        });
-    </script>
+        ];
+        ra.designs = [
+            {
+                _id: "xadMCAmYariNFt4HaS",
+                name: 'pl1-реклама',
+                title: 'Входная группа',
+                origin: 'http://10.1.2.1/pl1',
+                content: '',
+                typeId: "720p-6x1-h"
+            },
+
+            {
+                _id: "xadMCAmYariNFt4HSS",
+                name: 'pl1-реклама-2',
+                title: 'Входная группа 2',
+                origin: 'http://10.1.2.1/pl1',
+                content: '',
+                typeId: "720p-6x1-h"
+            },
+
+            {
+                _id: "xadMCAmYarZaFt4Ht",
+                name: 'pl2',
+                title: 'Кофейня',
+                origin: 'http://10.1.2.1/pl2',
+                content: '',
+                typeId: "720p-4x1-v"
+            },
+
+            {
+                _id: "xadMAsEYariNFt4Ht",
+                name: 'pl3-5',
+                title: 'Стеллажи',
+                origin: 'http://10.1.2.1/pl3',
+                content: '',
+                typeId: "720p-5x1-h"
+            },
+
+            {
+                _id: "xZaMCAmYariNFt4Ht",
+                name: 'pl6',
+                title: 'Бар левый',
+                origin: 'http://10.1.2.1/pl6',
+                content: '',
+                typeId: "720p-3x2-h"
+            },
+
+            {
+                _id: "xadMCAmYarVrFt4Ht",
+                name: 'pl7',
+                title: 'Бар правый',
+                origin: 'http://10.1.2.1/pl7',
+                content: '',
+                typeId: "720p-2x2-h"
+            },
+
+            {
+                _id: "xadMCXoEariNFt4Ht",
+                name: 'pl8',
+                title: 'Стеллажи 8',
+                origin: 'http://10.1.2.1/pl8',
+                content: '',
+                typeId: "720p-4x1-h"
+            },
+
+            {
+                _id: "xadMCAmAzIiNFt4Ht",
+                name: 'pl9',
+                title: 'Зеркала',
+                origin: 'http://10.1.2.1/pl9',
+                content: '',
+                typeId: "720p-3x1-v"
+            },
+
+            {
+                _id: "xadMCAZapriNFt4Ht",
+                name: 'pl10',
+                title: 'Витрина',
+                origin: 'http://10.1.2.1/pl10',
+                content: '',
+                typeId: "720p-3x1-v"
+            }
+        ];
+        ra.types = [
+            {
+                _id: "xadMCAmYariZaQ4Ht",
+                name: '720p-6x1-h',
+                title: '720p 6 горизонтальных',
+                params: ""
+            },
+            {
+                _id: "xadMCAmYariNZvIHt",
+                name: '720p-5x1-h',
+                title: '720p 5 горизонтальных',
+                params: ""
+            },
+            {
+                _id: "xadMCAmYariZxt4Ht",
+                name: '720p-4x1-h',
+                title: '720p 4 горизонтальных',
+                params: ""
+            },
+            {
+                _id: "xadMCAmYariXcT4Ht",
+                name: '720p-3x1-h',
+                title: '720p 3 горизонтальных',
+                params: ""
+            },
+            {
+                _id: "xadZxYtYariNFt4Ht",
+                name: '720p-2x1-h',
+                title: '720p 2 горизонтальных',
+                params: ""
+            },
+            {
+                _id: "xadMCAmYXiENFt4Ht",
+                name: '720p-1x1-h',
+                title: '720p 1 горизонтальный',
+                params: ""
+            },
+            {
+                _id: "xadMCAmYariZnR4Ht",
+                name: '720p-6x1-v',
+                title: '720p 6 вертикальных',
+                params: ""
+            },
+            {
+                _id: "xadMCAmXcVdNFt4Ht",
+                name: '720p-5x1-v',
+                title: '720p 5 вертикальных',
+                params: ""
+            },
+            {
+                _id: "ZxOyCAmYariNFt4Ht",
+                name: '720p-4x1-v',
+                title: '720p 4 вертикальных',
+                params: ""
+            },
+            {
+                _id: "xadMCAZmKpiNFt4Ht",
+                name: '720p-3x1-v',
+                title: '720p 3 вертикальных',
+                params: ""
+            },
+            {
+                _id: "xadMCAmYarQaUi4Ht",
+                name: '720p-2x1-v',
+                title: '720p 2 вертикальных',
+                params: ""
+            },
+            {
+                _id: "xadMCAZlRjiNFt4Ht",
+                name: '720p-1x1-v',
+                title: '720p 1 вертикальный',
+                params: ""
+            }
+        ],
+        ra.suites = [
+            {
+                _id: "xadMCAmYariZxQhHt",
+                name: 'Футбол',
+                title: 'Футбольная',
+                pairs: [{player: 'playerId', design: 'designId'}]
+            }
+        ]
+    });
+</script>
 </body>
 </html>
