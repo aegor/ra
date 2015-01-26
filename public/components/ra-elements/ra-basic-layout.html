@@ -27,15 +27,7 @@
                 height: 100%;
                 box-sizing: border-box;
             }
-/*            #core_scaffold {
-                position: absolute;
-                top: 10px;
-                right: 0px;
-                bottom: 0px;
-                left: 0px;
-                width: 100%;
-                height: 100%;
-            }*/
+
             #core_header_panel {
                 background-color: rgb(255, 255, 255);
             }
@@ -60,21 +52,10 @@
                 top: 202px;
                 position: absolute;
             }
-/*            #core_pages {
-                width: 100%;
-                height: 100%;
-                border: 1px solid silver;
-                left: 0px;
-                top: 0px;
-                position: absolute;
-            }*/
-/*            #core_item {
-                left: 3.09658813476563px;
-                top: 15.0994338989258px;
-                position: absolute;
-            }*/
+
+
             /*note the class ra-group-box is assign to the containing div for each field group*/
-/* ra-form-layout css */
+            /* ra-form-layout css */
             ra-form-layout /deep/ .ra-group-box {
                 border-style:dotted;
                 border-width:1px;
@@ -134,14 +115,35 @@
                 height: 150px;
             }
 
-            .colored {
+/*            .colored {
                 color: #0f9d58;
-            }
+            }*/
 
             .dropdown.colored::shadow #ripple,
             .dropdown.colored::shadow #background {
                 border: 1px solid #0f9d58;
                 background-color: #b7e1cd;
+            }
+
+/*            paper-button.colored {
+                color: #4285f4;
+            }*/
+
+            paper-button[raised].colored {
+                background: #4285f4;
+                color: #fff;
+            }
+
+            paper-button.ra > core-icon {
+                margin-right: 4px;
+            }
+
+            paper-button.hover:hover {
+                background: #eee;
+            }
+
+            paper-button.blue-ripple::shadow #ripple {
+                color: #4285f4;
             }
 /* ra-form-layout end css */
 
@@ -189,9 +191,15 @@
                     <ra-form-layout id='suiteFormLayout' formItems="{{suiteLayout}}" formValues="{{suiteFormValues}}" loadexternal=false>
                     </ra-form-layout>
                     <template if="{{suSelected !== undefined}}">
-                        <paper-button id="suUpdate" raised on-click={{suUpdate}}>Готово</paper-button>
-                        <paper-button id="suNew" raised on-click={{suNew}}>Новый</paper-button>
-                        <paper-button id="suDelete" raised on-click={{suDelete}}>Удалить</paper-button>
+                        <paper-button  class="colored ra" id="suUpdate" on-click={{suUpdate}}><core-icon icon="check"></core-icon>
+                            Готово
+                        </paper-button>
+                        <paper-button class="colored ra" id="suNew" on-click={{suNew}}><core-icon icon="add-circle-outline"></core-icon>
+                            Новая
+                        </paper-button>
+                        <paper-button class="colored ra" id="suDelete" on-click={{suDelete}}><core-icon icon="close"></core-icon>
+                            Удалить
+                        </paper-button>
                     </template>
                 </section>
 
@@ -201,9 +209,15 @@
                             </div>
                         </ra-form-layout>
                         <template if="{{plSelected !== undefined}}">
-                            <paper-button id="plUpdate" raised on-click={{plUpdate}}>Готово</paper-button>
-                            <paper-button id="plNew" raised on-click={{plNew}}>Новый</paper-button>
-                            <paper-button id="plDelete" raised on-click={{plDelete}}>Удалить</paper-button>
+                            <paper-button class="colored ra" id="plUpdate" on-click={{plUpdate}}><core-icon icon="check"></core-icon>
+                                Готово
+                            </paper-button>
+                            <paper-button class="colored ra" id="plNew" on-click={{plNew}}><core-icon icon="add-circle-outline"></core-icon>
+                                Новый
+                            </paper-button>
+                            <paper-button class="colored ra" id="plDelete" on-click={{plDelete}}><core-icon icon="close"></core-icon>
+                                Удалить
+                            </paper-button>
                         </template>
                 </section>
 
@@ -212,9 +226,15 @@
                     <ra-form-layout id='designFormLayout' formItems="{{designLayout}}" formValues="{{designFormValues}}" loadexternal=false>
                     </ra-form-layout>
                     <template if="{{deSelected !== undefined}}">
-                        <paper-button id="deUpdate" raised on-click={{deUpdate}}>Готово</paper-button>
-                        <paper-button id="deNew" raised on-click={{deNew}}>Новый</paper-button>
-                        <paper-button id="deDelete" raised on-click={{deDelete}}>Удалить</paper-button>
+                        <paper-button class="colored ra" id="deUpdate" on-click={{deUpdate}}><core-icon icon="check"></core-icon>
+                            Готово
+                        </paper-button>
+                        <paper-button class="colored ra" id="deNew" on-click={{deNew}}><core-icon icon="add-circle-outline"></core-icon>
+                            Новый
+                        </paper-button>
+                        <paper-button class="colored ra" id="deDelete" on-click={{deDelete}}><core-icon icon="close"></core-icon>
+                            Удалить
+                        </paper-button>
                     </template>
                 </section>
 
