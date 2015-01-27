@@ -23,6 +23,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../paper-dropdown/paper-dropdown.html">
 <link rel="import" href="../core-menu/core-menu.html">
 <link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../juicy-ace-editor/src/juicy-ace-editor.html">
 <!--
 Element provides a layout of input elements i.e a form. The form may be generated from a json file.
 If used the json file must be in the same directory as the invoking page and must be named formitems.json
@@ -49,14 +50,14 @@ Techniques illustrated:
 -->
 
 <polymer-element name="ra-form-layout" attributes="formItems formValues">
+
     <template>
         <div id='container'>
             <template repeat="{{formGroup, i in formItems}}">
                 <div class='ra-group-box' layout horizontal justified center wrap>
                     <template id="field_info" repeat="{{fieldInfo, j in formGroup}}">
                         <template if="{{fieldInfo.useControl==='input'}}">
-                            <div layout horizontal justified center class='ra-field-box'
-                                 id="{{fieldInfo.fieldAttribute}}">
+                            <div layout horizontal justified center class='ra-field-box' id="{{fieldInfo.fieldAttribute}}">
                                 <paper-input value="{{fieldInfo.value}}" label="{{fieldInfo.fieldLabel}}" floatinglabel
                                              disabled="{{fieldInfo.disabled}}" class="{{fieldInfo.class}}"
                                              on-change="{{updateFormValues}}"
@@ -65,8 +66,7 @@ Techniques illustrated:
                             </div>
                         </template>
                         <template if="{{fieldInfo.useControl==='toggle'}}">
-                            <div layout horizontal justified center class='ra-field-box'
-                                 id="{{fieldInfo.fieldAttribute}}">
+                            <div layout horizontal justified center class='ra-field-box' id="{{fieldInfo.fieldAttribute}}">
                                 <p>{{fieldInfo.fieldLabel}}</p>
 
                                 <div style='width:10px;'></div>
@@ -76,8 +76,7 @@ Techniques illustrated:
                             </div>
                         </template>
                         <template if="{{fieldInfo.useControl==='slider'}}">
-                            <div layout horizontal justified center class='ra-field-box'
-                                 id="{{fieldInfo.fieldAttribute}}">
+                            <div layout horizontal justified center class='ra-field-box' id="{{fieldInfo.fieldAttribute}}">
                                 <p>{{fieldInfo.fieldLabel}}</p>
 
                                 <div style='width:10px;'></div>
@@ -89,8 +88,7 @@ Techniques illustrated:
                             </div>
                         </template>
                         <template if="{{fieldInfo.useControl==='dropdown'}}">
-                            <div layout horizontal justified center class='ra-field-box'
-                                 id="{{fieldInfo.fieldAttribute}}">
+                            <div layout horizontal justified center class='ra-field-box' id="{{fieldInfo.fieldAttribute}}">
                                 <p>{{fieldInfo.fieldLabel}}</p>
 
                                 <div style='width:10px;'></div>
@@ -103,6 +101,20 @@ Techniques illustrated:
                                         </core-menu>
                                     </paper-dropdown>
                                 </paper-dropdown-menu>
+                            </div>
+                        </template>
+                        <template if="{{fieldInfo.useControl==='ace'}}">
+                            <style>
+                                /* ace element needed style */
+                                juicy-ace-editor {
+                                    margin: 0px;
+                                    width: 100%;
+                                    height: 13em;
+                                }
+                            </style>
+                            <div layout horizontal justified center class='ra-group-box-ace' id="{{fieldInfo.fieldAttribute}}">
+                                <juicy-ace-editor theme="ace/theme/chrome" mode="ace/mode/html" fontsize="16px" readonly="" softtabs="true"
+                                        >{{fieldInfo.value}}</juicy-ace-editor>
                             </div>
                         </template>
                     </template>

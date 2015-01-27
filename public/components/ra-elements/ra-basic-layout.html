@@ -16,7 +16,7 @@
 
 <polymer-element
         name="ra-basic-layout"
-        attributes="plSelected deSelected suSelected playerLayout suiteLayout designLayout suiteFormValues playerFormValues designFormValues players designs suites config"
+        attributes="plSelected deSelected suSelected daSelected dashboardLayout playerLayout suiteLayout designLayout dashboardFormValues suiteFormValues playerFormValues designFormValues players designs suites config"
         >
 
     <template>
@@ -65,6 +65,14 @@
                 width: 50%;
             }
 
+            ra-form-layout /deep/ .ra-group-box-ace {
+                border-style:dotted;
+                border-width:1px;
+                border-color: green;
+                margin:5px;
+                padding:5px 20px;
+                width: 100%;
+            }
             /*note the class ra-field-box is assign to the containing div for each field*/
 
             ra-form-layout /deep/ .ra-field-box {
@@ -145,6 +153,7 @@
             paper-button.blue-ripple::shadow #ripple {
                 color: #4285f4;
             }
+
 /* ra-form-layout end css */
 
         </style>
@@ -157,6 +166,9 @@
                     </core-field>
                 </core-toolbar>
                 <core-menu  id="main_menu"  on-core-select="{{mainMenuSelected}}">
+
+                    <core-submenu id="dashboard_submenu" icon="assignment" label="Dashboard" on-core-select="{{dashboardMenuSelected}}">
+                    </core-submenu>
 
                     <core-submenu id="suites_submenu" icon="assignment" label="Сюиты" on-core-select="{{suitesMenuSelected}}">
                         <template repeat="{{ suite in suites }}">
@@ -177,7 +189,7 @@
                     </core-submenu>
 
                     <core-submenu opened active id="settings_submenu" icon="settings" label="Инструменты" on-core-select="{{settingsMenuSelected}}">
-                        <core-item id="editor_submenu" label="Редактор" horizontal center layout></core-item>
+                        <!--<core-item id="editor_submenu" label="Редактор" horizontal center layout></core-item>-->
                         <core-item id="settings_submenu" label="Настройки" horizontal center layout active></core-item>
                     </core-submenu>
 
@@ -186,6 +198,14 @@
             </core-header-panel>
             <div id="div" tool>Rationale</div>
             <core-pages selected="{{ $.main_menu.selected }}" selectedindex="{{ $.main_menu.selectedIndex }}" notap id="core_pages">
+
+                <section id="dashboard">
+                    <ra-form-layout id='dashboardFormLayout' formItems="{{dashboardLayout}}" formValues="{{dashboardFormValues}}" loadexternal=false>
+                    </ra-form-layout>
+                        <paper-button  class="colored ra" id="daUpdate" on-click={{daUpdate}}><core-icon icon="check"></core-icon>
+                            Готово
+                        </paper-button>
+                </section>
 
                 <section id="suite_editor">
                     <ra-form-layout id='suiteFormLayout' formItems="{{suiteLayout}}" formValues="{{suiteFormValues}}" loadexternal=false>
@@ -222,7 +242,6 @@
                 </section>
 
                 <section id="design_editor">
-                    <b>Дизайн</b>
                     <ra-form-layout id='designFormLayout' formItems="{{designLayout}}" formValues="{{designFormValues}}" loadexternal=false>
                     </ra-form-layout>
                     <template if="{{deSelected !== undefined}}">
@@ -259,9 +278,17 @@
             this.plSelected = undefined;
             this.suSelected = undefined;
             this.deSelected = undefined;
+            this.daSelected = undefined;
+            this.dashboardFormValues = [];
             this.suiteFormValues = [];
             this.playerFormValues = [];
             this.designFormValues = [];
+
+            this.DashboardLayout = [
+                [
+
+                ]
+            ];
 
             this.PlayerLayout = [
                 [
@@ -281,7 +308,8 @@
                     {"fieldLabel":"Имя", "fieldAttribute":"name", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
                     {"fieldLabel":"Описание", "fieldAttribute":"title", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
                     {"fieldLabel":"URL", "fieldAttribute":"origin", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
-                    {"fieldLabel":"Содержимое", "fieldAttribute":"content", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""}
+                    {"fieldLabel":"Тип", "fieldAttribute":"typeId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"three", "selectvalues":["one", "two", "three", "four"]},
+                    {"fieldLabel":"Содержимое", "fieldAttribute":"content", "useControl":"ace", "disabled":false, "class":"refreshLabel", "value":""}
                 ]
             ];
             this.SuiteLayout = [
@@ -294,8 +322,32 @@
             ];
         },
         mainMenuSelected: function (e, detail, sender) {
-            e.detail.isSelected && console.log("main menu selected: ", e.target.selectedItem.label);
+            if (e.detail.isSelected) {
+                console.log("main menu selected: ", e.target.selectedItem.label);
+                if (e.target.selectedItem.label === "Dashboard"){
+                    this.dashboardMenuSelected(e, detail,sender);
+                }
+            }
         },
+
+        dashboardMenuSelected: function (e, detail, sender) {
+            if (e.detail.isSelected) {
+                that = this;
+                this.daSelected = parseInt(e.target.selected);
+                var da =  this.players[this.plSelected];
+                for (var i in this.players){
+                    this.DashboardLayout[0][i] = {"fieldLabel":"", "fieldAttribute":"typeId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"", "selectvalues":[]};
+                    this.DashboardLayout[0][i].fieldLabel = "Плеер " + this.players[i].name;
+                    this.DashboardLayout[0][i].value = this.players[i].designId;
+                    var a = this.players[i].typeId;
+                    this.DashboardLayout[0][i].selectvalues = _.pluck(this.designs.filter(function (j) {return j.typeId === a}), "name");
+                };
+                console.log("dashboard menu selected: ");
+
+                this.$.dashboardFormLayout.loadFormItems(this.DashboardLayout);
+            }
+        },
+
         playersMenuSelected: function (e, detail, sender) {
             if (e.detail.isSelected) {
                 that = this;
@@ -344,7 +396,9 @@
                 this.DesignLayout[0][1].value = de.name;
                 this.DesignLayout[0][2].value = de.title;
                 this.DesignLayout[0][3].value = de.origin;
-                this.DesignLayout[0][4].value = de.content;
+                this.DesignLayout[0][4].value = de.typeId;
+                this.DesignLayout[0][4].selectvalues = _.pluck(this.types, "name");
+                this.DesignLayout[0][5].value = de.content;
                 console.log("players menu selected: ", e.target.selectedItem.label);
                 this.$.designFormLayout.loadFormItems(this.DesignLayout);
             }
@@ -383,12 +437,18 @@
             de.name = this.DesignLayout[0][1].value;
             de.title = this.DesignLayout[0][2].value;
             de.origin = this.DesignLayout[0][3].value;
-            de.content = this.DesignLayout[0][4].value;
+            de.typeId = this.DesignLayout[0][4].value;
+            de.content = this.DesignLayout[0][5].value;
             return de;
         },
         deUpdate: function (a,b,c){
             this.designs[this.deSelected] = this.deGetValues();
             console.log(this.designs[this.deSelected]);
+        },
+        daUpdate: function (a,b,c){
+            for (i in this.players){
+                this.players[i].designId = this.DashboardLayout[0][i].value;
+            }
         },
         deNew: function (a,b,c){
             this.designs.push(this.deGetValues());
