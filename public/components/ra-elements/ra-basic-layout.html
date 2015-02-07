@@ -1,4 +1,5 @@
 <link rel="import" href="../core-scaffold/core-scaffold.html">
+<link rel="import" href="../core-ajax/core-ajax.html">
 <link rel="import" href="../core-header-panel/core-header-panel.html">
 <link rel="import" href="../core-menu/core-menu.html">
 <link rel="import" href="../core-item/core-item.html">
@@ -12,7 +13,8 @@
 <link rel="import" href="../core-pages/core-pages.html">
 <link rel="import" href="../font-roboto/roboto.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="ra-form-layout.html">
+<link rel="import" href="../ra-elements/ra-form-layout.html">
+<link rel="import" href="../ace-element/ace-element.html">
 
 <polymer-element
         name="ra-basic-layout"
@@ -20,7 +22,12 @@
         >
 
     <template>
-        <style>
+       <style>
+           body {
+               font-family: sans-serif;
+               margin: 0;
+               overflow: hidden;
+           }
             :host {
                 position: absolute;
                 width: 100%;
@@ -153,119 +160,149 @@
             paper-button.blue-ripple::shadow #ripple {
                 color: #4285f4;
             }
-
 /* ra-form-layout end css */
-
         </style>
-        <core-scaffold id="core_scaffold">
-            <core-header-panel mode="seamed" id="core_header_panel" navigation flex>
-                <core-toolbar id="core_toolbar">
-                    <core-field id="core_field" icon="search" theme="core-light-theme" center horizontal layout>
-                        <core-icon icon="search" id="corefield-icon"></core-icon>
-                        <input id="corefield-input" placeholder="поиск..." is="core-input" flex>
-                    </core-field>
-                </core-toolbar>
-                <core-menu  id="main_menu"  on-core-select="{{mainMenuSelected}}">
 
-                    <core-submenu id="dashboard_submenu" icon="assignment" label="Dashboard" on-core-select="{{dashboardMenuSelected}}">
-                    </core-submenu>
 
-                    <core-submenu id="suites_submenu" icon="assignment" label="Сюиты" on-core-select="{{suitesMenuSelected}}">
-                        <template repeat="{{ suite in suites }}">
-                            <core-item label="{{suite.name}}" horizontal center layout active></core-item>
-                        </template>
-                    </core-submenu>
+        <core-ajax id="videos" auto url="http://friends.akulovs.com/assets/videos/" handleAs="json"></core-ajax>
+        <core-ajax id="photos" auto url="http://friends.akulovs.com/assets/photos/" handleAs="json"></core-ajax>
+        <core-ajax id="fonts" auto url="http://friends.akulovs.com/assets/fonts/" handleAs="json"></core-ajax>
 
-                    <core-submenu id="players_submenu" icon="view-quilt" label="Плееры" on-core-select="{{playersMenuSelected}}">
-                        <template repeat="{{ player in players }}">
-                            <core-item label="{{player.name}}" horizontal center layout></core-item>
-                        </template>
-                    </core-submenu>
+        <template if="{{isAdmin}}">
+            <core-scaffold id="core_scaffold">
+                <core-header-panel mode="seamed" id="core_header_panel" navigation flex>
+                    <core-toolbar id="core_toolbar">
+                        <core-field id="core_field" icon="search" theme="core-light-theme" center horizontal layout>
+                            <core-icon icon="search" id="corefield-icon"></core-icon>
+                            <input id="corefield-input" placeholder="поиск..." is="core-input" flex>
+                        </core-field>
+                    </core-toolbar>
 
-                    <core-submenu id="designs_submenu" icon="theaters" label="Дизайны" on-core-select="{{designsMenuSelected}}">
-                        <template repeat="{{ design in designs }}">
-                            <core-item label="{{design.name}}" horizontal center layout></core-item>
-                        </template>
-                    </core-submenu>
+                    <core-menu  id="main_menu"  on-core-select="{{mainMenuSelected}}">
 
-                    <core-submenu opened active id="settings_submenu" icon="settings" label="Инструменты" on-core-select="{{settingsMenuSelected}}">
-                        <!--<core-item id="editor_submenu" label="Редактор" horizontal center layout></core-item>-->
-                        <core-item id="settings_submenu" label="Настройки" horizontal center layout active></core-item>
-                    </core-submenu>
+                        <core-submenu id="dashboard_submenu" icon="assignment" label="Dashboard" on-core-select="{{dashboardMenuSelected}}">
+                        </core-submenu>
 
-                </core-menu>
+                        <core-submenu id="suites_submenu" icon="assignment" label="Сюиты" on-core-select="{{suitesMenuSelected}}">
+                            <template repeat="{{ suite in suites }}">
+                                <core-item label="{{suite.name}}" horizontal center layout active></core-item>
+                            </template>
+                        </core-submenu>
 
-            </core-header-panel>
-            <div id="div" tool>Rationale</div>
-            <core-pages selected="{{ $.main_menu.selected }}" selectedindex="{{ $.main_menu.selectedIndex }}" notap id="core_pages">
+                        <core-submenu id="players_submenu" icon="view-quilt" label="Плееры" on-core-select="{{playersMenuSelected}}">
+                            <template repeat="{{ player in players }}">
+                                <core-item label="{{player.name}}" horizontal center layout></core-item>
+                            </template>
+                        </core-submenu>
 
-                <section id="dashboard">
-                    <ra-form-layout id='dashboardFormLayout' formItems="{{dashboardLayout}}" formValues="{{dashboardFormValues}}" loadexternal=false>
-                    </ra-form-layout>
-                        <paper-button  class="colored ra" id="daUpdate" on-click={{daUpdate}}><core-icon icon="check"></core-icon>
-                            Готово
-                        </paper-button>
-                </section>
+                        <core-submenu id="designs_submenu" icon="theaters" label="Дизайны" on-core-select="{{designsMenuSelected}}">
+                            <template repeat="{{ design in designs }}">
+                                <core-item label="{{design.name}}" horizontal center layout></core-item>
+                            </template>
+                        </core-submenu>
 
-                <section id="suite_editor">
-                    <ra-form-layout id='suiteFormLayout' formItems="{{suiteLayout}}" formValues="{{suiteFormValues}}" loadexternal=false>
-                    </ra-form-layout>
-                    <template if="{{suSelected !== undefined}}">
-                        <paper-button  class="colored ra" id="suUpdate" on-click={{suUpdate}}><core-icon icon="check"></core-icon>
-                            Готово
-                        </paper-button>
-                        <paper-button class="colored ra" id="suNew" on-click={{suNew}}><core-icon icon="add-circle-outline"></core-icon>
-                            Новая
-                        </paper-button>
-                        <paper-button class="colored ra" id="suDelete" on-click={{suDelete}}><core-icon icon="close"></core-icon>
-                            Удалить
-                        </paper-button>
-                    </template>
-                </section>
+                        <core-submenu opened active id="settings_submenu" icon="settings" label="Инструменты" on-core-select="{{settingsMenuSelected}}">
+                            <!--<core-item id="editor_submenu" label="Редактор" horizontal center layout></core-item>-->
+                            <core-item id="settings_submenu" label="Настройки" horizontal center layout active></core-item>
+                        </core-submenu>
 
-                <section id="player_editor">
-                        <ra-form-layout id='playerFormLayout' formItems="{{playerLayout}}" formValues="{{playerFormValues}}" loadexternal=false>
-                            <div horizontal layout>
-                            </div>
+                    </core-menu>
+
+                </core-header-panel>
+                <div id="div" tool>Rationale</div>
+
+                <core-pages selected="{{ $.main_menu.selected | debug}}" selectedindex="{{ $.main_menu.selectedIndex }}" notap id="core_pages">
+
+                    <section id="dashboard">
+                        <ra-form-layout id='dashboardFormLayout' formItems="{{dashboardLayout}}" formValues="{{dashboardFormValues}}" loadexternal=false>
                         </ra-form-layout>
-                        <template if="{{plSelected !== undefined}}">
-                            <paper-button class="colored ra" id="plUpdate" on-click={{plUpdate}}><core-icon icon="check"></core-icon>
+                            <paper-button  class="colored ra" id="daUpdate" on-click={{daUpdate}}><core-icon icon="check"></core-icon>
                                 Готово
                             </paper-button>
-                            <paper-button class="colored ra" id="plNew" on-click={{plNew}}><core-icon icon="add-circle-outline"></core-icon>
-                                Новый
+                    </section>
+
+                    <section id="suite_editor">
+                        <ra-form-layout id='suiteFormLayout' formItems="{{suiteLayout}}" formValues="{{suiteFormValues}}" loadexternal=false>
+                        </ra-form-layout>
+                        <template if="{{suSelected !== undefined}}">
+                            <paper-button  class="colored ra" id="suUpdate" on-click={{suUpdate}}><core-icon icon="check"></core-icon>
+                                Готово
                             </paper-button>
-                            <paper-button class="colored ra" id="plDelete" on-click={{plDelete}}><core-icon icon="close"></core-icon>
+                            <paper-button class="colored ra" id="suNew" on-click={{suNew}}><core-icon icon="add-circle-outline"></core-icon>
+                                Новая
+                            </paper-button>
+                            <paper-button class="colored ra" id="suDelete" on-click={{suDelete}}><core-icon icon="close"></core-icon>
                                 Удалить
                             </paper-button>
                         </template>
-                </section>
+                    </section>
 
-                <section id="design_editor">
-                    <ra-form-layout id='designFormLayout' formItems="{{designLayout}}" formValues="{{designFormValues}}" loadexternal=false>
-                    </ra-form-layout>
-                    <template if="{{deSelected !== undefined}}">
-                        <paper-button class="colored ra" id="deUpdate" on-click={{deUpdate}}><core-icon icon="check"></core-icon>
-                            Готово
-                        </paper-button>
-                        <paper-button class="colored ra" id="deNew" on-click={{deNew}}><core-icon icon="add-circle-outline"></core-icon>
-                            Новый
-                        </paper-button>
-                        <paper-button class="colored ra" id="deDelete" on-click={{deDelete}}><core-icon icon="close"></core-icon>
-                            Удалить
-                        </paper-button>
-                    </template>
-                </section>
+                    <section id="player_editor">
+                            <ra-form-layout id='playerFormLayout' formItems="{{playerLayout}}" formValues="{{playerFormValues}}" loadexternal=false>
+                                <div horizontal layout>
+                                </div>
+                            </ra-form-layout>
+                            <template if="{{plSelected !== undefined}}">
+                                <paper-button class="colored ra" id="plUpdate" on-click={{plUpdate}}><core-icon icon="check"></core-icon>
+                                    Готово
+                                </paper-button>
+                                <paper-button class="colored ra" id="plNew" on-click={{plNew}}><core-icon icon="add-circle-outline"></core-icon>
+                                    Новый
+                                </paper-button>
+                                <paper-button class="colored ra" id="plDelete" on-click={{plDelete}}><core-icon icon="close"></core-icon>
+                                    Удалить
+                                </paper-button>
+                            </template>
+                    </section>
 
-                <section id="settings_editor">
-                    <b>Инструменты</b>
-                </section>
-            </core-pages>
-        </core-scaffold>
+                    <section id="design_editor">
+                        <ra-form-layout id='designFormLayout' formItems="{{designLayout}}" formValues="{{designFormValues}}" loadexternal=false>
+                        </ra-form-layout>
+                        <template if="{{deSelected !== undefined}}">
+                            <paper-button class="colored ra" id="deUpdate" on-click={{deUpdate}}><core-icon icon="check"></core-icon>
+                                Готово
+                            </paper-button>
+                            <paper-button class="colored ra" id="deNew" on-click={{deNew}}><core-icon icon="add-circle-outline"></core-icon>
+                                Новый
+                            </paper-button>
+                            <paper-button class="colored ra" id="deDelete" on-click={{deDelete}}><core-icon icon="close"></core-icon>
+                                Удалить
+                            </paper-button>
+                        </template>
+                    </section>
+
+                    <section id="settings_editor">
+                        <b>Инструменты</b>
+                    </section>
+                </core-pages>
+            </core-scaffold>
+        </template>
     </template>
 <script>
     Polymer('ra-basic-layout', {
         ready: function () {
+            var ajaxv = document.querySelector("body /deep/ #videos");
+            ajaxv.addEventListener("core-response",
+                    function(e) {
+                        var self = this;
+                        self.videos = e.detail.response;
+                        console.log("videos:", self.videos )
+                    }
+            );
+            var ajaxp = document.querySelector("body /deep/ #photos");
+            ajaxp.addEventListener("core-response",
+                    function(e) {
+                        this.photos = e.detail.response;
+                        console.log("photos:", this.photos)
+                    }
+            );
+            var ajaxf = document.querySelector("body /deep/ #fonts");
+            ajaxf.addEventListener("core-response",
+                    function(e) {
+                        this.fonts = e.detail.response;
+                        console.log("fonts:", this.fonts)
+                        }
+            );
 
             if (typeof(Tracker) !== "undefined") { // This is Meteor application? If yes, autotrack models
                 Tracker.autorun(function () {
@@ -273,8 +310,13 @@
                     this.designs = Designs.find().fetch();
                     this.suites = Suites.find().fetch();
                     this.config = Config.find().fetch();
+                    this.types = PlayerTypes.find().fetch();
                 }.bind(this)); // see about "bind this": http://stackoverflow.com/questions/6188861/javascript-anonymous-function-parameter-passing
             };
+            this.isAdmin = true;
+            this.videos = undefined;
+            this.photos = undefined;
+            this.fonts = undefined;
             this.plSelected = undefined;
             this.suSelected = undefined;
             this.deSelected = undefined;
@@ -350,7 +392,7 @@
 
         playersMenuSelected: function (e, detail, sender) {
             if (e.detail.isSelected) {
-                that = this;
+                var that = this;
 
                 this.plSelected = parseInt(e.target.selected);
                 var pl =  this.players[this.plSelected];
@@ -366,14 +408,14 @@
                 this.PlayerLayout[0][6].selectvalues = _.pluck(this.designs.filter(function (i) {return i.typeId === a}), "name");
                 this.PlayerLayout[0][7].selectvalues = _.pluck(this.types, "name");
                 this.PlayerLayout[0][7].value = pl.typeId;
-                console.log("players menu selected: ", this.players[this.plSelected]);
+                console.log("players menu selected: ", that, this.players[this.plSelected]);
                 //debugger;
-                this.$.playerFormLayout.loadFormItems(this.PlayerLayout);
+                document.querySelector('body /deep/ #playerFormLayout').loadFormItems(this.PlayerLayout);
             }
         },
         suitesMenuSelected: function (e, detail, sender) {
             if (e.detail.isSelected) {
-                that = this;
+                var that = this;
                 this.suSelected = parseInt(e.target.selected);
                 var su =  this.suites[this.suSelected];
 
@@ -381,13 +423,13 @@
                 this.SuiteLayout[0][1].value = su.name;
                 this.SuiteLayout[0][2].value = su.title;
                 this.SuiteLayout[0][3].value = su.pairs;
-                console.log("suites menu selected: ", e.target.selectedItem.label);
-                this.$.suiteFormLayout.loadFormItems(this.SuiteLayout);
+                console.log("suites menu selected: ", that, this, e.target.selectedItem.label);
+                document.querySelector('body /deep/ #suiteFormLayout').loadFormItems(this.SuiteLayout);
             }
         },
         designsMenuSelected: function (e, detail, sender) {
             if (e.detail.isSelected) {
-                that = this;
+                var that = this;
 
                 this.deSelected = parseInt(e.target.selected);
                 var de =  this.designs[this.deSelected];
@@ -399,8 +441,8 @@
                 this.DesignLayout[0][4].value = de.typeId;
                 this.DesignLayout[0][4].selectvalues = _.pluck(this.types, "name");
                 this.DesignLayout[0][5].value = de.content;
-                console.log("players menu selected: ", e.target.selectedItem.label);
-                this.$.designFormLayout.loadFormItems(this.DesignLayout);
+                console.log("players menu selected: ", that, e.target.selectedItem.label);
+                document.querySelector('body /deep/ #designFormLayout').loadFormItems(this.DesignLayout);
             }
         },
         settingsMenuSelected: function (e, detail, sender) {
@@ -418,18 +460,17 @@
             pl.typeId = this.PlayerLayout[0][7].value;
             return pl;
         },
+        plNew: function (a,b,c){
+            //this.players.push(this.plGetValues());
+            Players.insert(_.omit(this.plGetValues(), '_id'));
+        },
         plUpdate: function (a,b,c){
             this.players[this.plSelected] = this.plGetValues();
-            console.log(this.players[this.plSelected]);
-        },
-        plNew: function (a,b,c){
-            this.players.push(this.plGetValues());
-            console.log(this.players);
-            console.log("plNew:", c.id);
+            Players.update(this.players[this.plSelected]._id, _.omit(this.players[this.plSelected], "_id"));
         },
         plDelete: function (a,b,c){
-            this.players.splice([this.plSelected],1);
-            console.log(this.players);
+            Players.remove(this.players[this.plSelected]._id);
+            //this.players.splice([this.plSelected],1);
         },
         deGetValues: function (){
             var de = JSON.parse(JSON.stringify(this.designs[this.deSelected]));
@@ -438,26 +479,26 @@
             de.title = this.DesignLayout[0][2].value;
             de.origin = this.DesignLayout[0][3].value;
             de.typeId = this.DesignLayout[0][4].value;
-            de.content = this.DesignLayout[0][5].value;
+            de.content = this.$.designFormLayout.aceInput; //this.DesignLayout[0][5].value;
             return de;
+        },
+        deNew: function (a,b,c){
+            //this.designs.push(this.deGetValues());
+            Designs.insert(_.omit(this.deGetValues(), '_id'));
         },
         deUpdate: function (a,b,c){
             this.designs[this.deSelected] = this.deGetValues();
-            console.log(this.designs[this.deSelected]);
-        },
-        daUpdate: function (a,b,c){
-            for (i in this.players){
-                this.players[i].designId = this.DashboardLayout[0][i].value;
-            }
-        },
-        deNew: function (a,b,c){
-            this.designs.push(this.deGetValues());
-            console.log(this.designs);
-            console.log("deNew:", c.id);
+            Designs.update(this.designs[this.deSelected]._id, _.omit(this.designs[this.deSelected], '_id'));
         },
         deDelete: function (a,b,c){
-            this.designs.splice([this.deSelected],1);
-            console.log(this.designs);
+            Designs.remove(this.designs[this.deSelected]._id);
+            //this.designs.splice([this.deSelected],1);
+        },
+        daUpdate: function (a,b,c){
+            for (var i in this.players){
+                this.players[i].designId = this.DashboardLayout[0][i].value;
+                Players.update(this.players[i]._id, _.omit(this.players[i], '_id'));
+            }
         },
         suGetValues: function (){
             var su = JSON.parse(JSON.stringify(this.suites[this.suSelected]));
@@ -467,19 +508,26 @@
             su.pairs = this.SuiteLayout[0][3].value;
             return su;
         },
+        suNew: function (a,b,c){
+            //this.suites.push(this.suGetValues());
+            Suites.insert(_.omit(this.suGetValues(), '_id'));
+        },
         suUpdate: function (a,b,c){
             this.suites[this.suSelected] = this.suGetValues();
-            console.log(this.suites[this.suSelected]);
+            Suites.update(this.suites[this.suSelected]._id, _.omit(this.suites[this.suSelected], '_id'));
         },
-        suNew: function (a,b,c){
-            this.suites.push(this.suGetValues());
-            console.log(this.suites);
-            console.log("suNew:", c.id);
-        },
+
         suDelete: function (a,b,c){
-            this.suites.splice([this.suSelected],1);
-            console.log(this.suites);
+            Suites.remove(this.suites[this.suSelected]._id);
+            // this.suites.splice([this.suSelected],1);
+        },
+        debug: function (a){
+            console.log("debugger:", a);
+            return a;
         }
     });
 </script>
 </polymer-element>
+
+<!--
+<ra-basic-layout id="ra-basic-layout"></ra-basic-layout>-->

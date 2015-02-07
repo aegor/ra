@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="ru">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="underscore.min.js"></script>
+    <script src="../webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="../polymer/polymer.html">
+    <link rel="import" href="../core-elements/core-elements.html">
+    <link rel="import" href="../paper-elements/paper-elements.html">
+    <link rel="import" href="../login-box/login-box.html">
+    <link rel="import" href="../ra-elements/ra-form-layout.html">
+    <link rel="import" href="../ra-elements/ra-crud-buttons.html">
+</head>
+
+<body>
+
+<polymer-element name="ra-layout" attributes="selectedSub formValues">
+    <template>
+        <style>
+            /*note the class ra-group-box is assign to the containing div for each field group*/
+            /* ra-form-layout css */
+            ra-form-layout /deep/ .ra-group-box {
+                border-style:dotted;
+                border-width:1px;
+                border-color: green;
+                margin:5px;
+                padding:5px 20px;
+                width: 50%;
+            }
+
+            ra-form-layout /deep/ .ra-group-box-ace {
+                border-style:dotted;
+                border-width:1px;
+                border-color: green;
+                margin:5px;
+                padding:5px 20px;
+                width: 100%;
+            }
+            /*note the class ra-field-box is assign to the containing div for each field*/
+
+            ra-form-layout /deep/ .ra-field-box {
+                border-style:dotted;
+                border-width:1px;
+                margin:5px;
+                padding:5px 20px;
+                width: 200px;
+            }
+
+            /*note the element assigns an id equal to the fieldAttribute value to the containing div for each
+            field so each field can be styled individually.
+            */
+
+            ra-form-layout /deep/ #slider {
+                background-color: grey;
+                width:400px;
+            }
+
+            html /deep/ paper-dropdown-menu {
+                box-sizing: border-box;
+                width: 170px;
+            }
+
+            html /deep/ core-menu {
+                box-sizing: border-box;
+                width: 170px;
+            }
+
+            paper-item {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            html /deep/ core-collapse {
+                border: 1px solid #ccc;
+                padding: 8px;
+            }
+
+            html /deep/ core-overlay {
+                border: 1px solid #ccc;
+                padding: 8px;
+                background: #fff;
+            }
+
+            .constrained-height {
+                height: 150px;
+            }
+
+            .dropdown.colored::shadow #ripple,
+            .dropdown.colored::shadow #background {
+                border: 1px solid #0f9d58;
+                background-color: #b7e1cd;
+            }
+
+            /* ra-form-layout end css */
+        </style>
+        <template if="{{isLogged}}">
+            <core-scaffold>
+                <core-header-panel mode="seamed" navigation flex>
+                    <core-toolbar>
+                        <core-field icon="search" theme="core-light-theme" center horizontal layout>
+                            <core-icon icon="search"></core-icon>
+                            <input placeholder="поиск..." is="core-input" flex>
+                        </core-field>
+                    </core-toolbar>
+                    <!-- <paper-shadow z="1"> -->
+                    <core-menu selected="{{mainMenuSelected}}" selectedIndex="{{mainMenuSelectedIndex}}">
+                        <template repeat="{{menu in menus}}">
+                            <core-submenu id="{{menu.name}}_submenu" selected="{{selectedSub}}" selectedIndex="{{selectedSubIndex}}" icon="{{menu.icon}}" label="{{menu.display}}">
+                                <template repeat="{{ m_item in menu.content }}">
+                                    <!--<core-item label="{{m_item.name}}" horizontal center layout active></core-item> -->
+                                    <paper-item>{{m_item.name}}</paper-item>
+                                </template>
+                            </core-submenu>
+                        </template>
+                    </core-menu>
+                    <!-- </paper-shadow> -->
+                </core-header-panel>
+                <div tool>Rationale</div>>
+                        <template if="{{menus[mainMenuSelectedIndex].name === 'dashboard'}}">
+                            <ra-form-layout
+                                    formItems="{{menus[mainMenuSelectedIndex].name | formBuilder(menus[mainMenuSelectedIndex].name)}}" formValues="{{formValues}}">
+                            </ra-form-layout>
+                            <crud-buttons
+                                    isvisible="{{true}}" updateonly="{{true}}" onaction="{{crudAction}}" collection="dashboard">
+                            </crud-buttons>
+                        </template>
+                        <template if="{{menus[mainMenuSelectedIndex].content[selectedSub].name && menus[mainMenuSelectedIndex].name !== 'dashboard'}}">
+                            <ra-form-layout
+                                formItems="{{menus[mainMenuSelectedIndex].content[selectedSub] | formBuilder(menus[mainMenuSelectedIndex].name)}}" formValues="{{formValues}}">
+                            </ra-form-layout>
+                            <crud-buttons
+                                    isvisible="{{true}}"
+                                    onaction="{{crudAction}}"
+                                    collection="{{menus[mainMenuSelectedIndex].name}}"
+                                    obj="{{menus[mainMenuSelectedIndex].content[selectedSub]._id}}"
+                                    objindex="{{selectedSub}}">
+                            </crud-buttons>
+                        </template>
+            </core-scaffold>
+        </template>
+        <template if="{{!isLogged}}">
+            <div horizontal center-justified layout>
+                <login-box></login-box>
+            </div>
+        </template>
+    </template>
+    <script>
+        Polymer('ra-layout', {
+
+            menus: [
+                {
+                    name: "dashboard",
+                    display: "Dashboard",
+                    icon: "assessment",
+                    content: {}
+                },
+                {
+                    name: "suites",
+                    display: "Сюиты",
+                    icon: "assignment",
+                    content: {}
+                },
+                {
+                    name: "players",
+                    display: "Плееры",
+                    icon: "view-quilt",
+                    content: {}
+                },
+                {
+                    name: "designs",
+                    display: "Дизайны",
+                    icon: "theaters",
+                    content: {}
+                }
+            ],
+
+            playersLayoutTmpl: [
+            [
+                {"fieldLabel":"Имя", "fieldAttribute":"name", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                {"fieldLabel":"Описание", "fieldAttribute":"title", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                {"fieldLabel":"IP адрес", "fieldAttribute":"ip", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                {"fieldLabel":"Логин", "fieldAttribute":"login", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                {"fieldLabel":"Пароль", "fieldAttribute":"password", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                {"fieldLabel":"Дизайн", "fieldAttribute":"designId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"three", "selectvalues":["one", "two", "three", "four"]},
+                {"fieldLabel":"Тип", "fieldAttribute":"typeId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"three", "selectvalues":["one", "two", "three", "four"]},
+            ]
+            ],
+            suitesLayoutTmpl: [
+            [
+                {"fieldLabel":"Имя", "fieldAttribute":"name", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                {"fieldLabel":"Описание", "fieldAttribute":"title", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                {"fieldLabel":"Соответствия", "fieldAttribute":"pairs", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""}
+            ]
+            ],
+            designsLayoutTmpl: [
+            [
+                {"fieldLabel":"Имя", "fieldAttribute":"name", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                {"fieldLabel":"Описание", "fieldAttribute":"title", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                {"fieldLabel":"URL", "fieldAttribute":"origin", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                {"fieldLabel":"Тип", "fieldAttribute":"typeId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"three", "selectvalues":["one", "two", "three", "four"]},
+                {"fieldLabel":"Содержимое", "fieldAttribute":"content", "useControl":"ace", "disabled":false, "class":"refreshLabel", "value":""}
+            ]
+            ],
+
+            formValues: {},
+
+            crudAction: function (e){
+                var action = e.target.attributes['data-action'].value;
+                var obj = e.target.attributes['data-object'].value;
+                var ind = e.target.attributes['data-index'].value;
+                var coll = e.target.attributes['data-collection'].value;
+                this.fire('said-hello', {action: action, collection: coll, object: obj, index: ind});
+                console.log("CRUD action:", action, "collection:", coll, "object:", obj, "index:", ind)
+            },
+
+            formBuilder: function (content, table) {
+                if (content !== undefined){
+                    var result = this[table + "Load"](content);
+                    // console.log("formbuilder:", content, table, result);
+                    return result;
+                }
+            },
+            playersLoad: function (pl) {
+                this.playersLayoutTmpl[0][0].value = pl.name;
+                this.playersLayoutTmpl[0][1].value = pl.title;
+                this.playersLayoutTmpl[0][2].value = pl.ip;
+                this.playersLayoutTmpl[0][3].value = pl.login;
+                this.playersLayoutTmpl[0][4].value = pl.password;
+                this.playersLayoutTmpl[0][5].value = pl.designId;
+                var a = pl.typeId;
+                this.playersLayoutTmpl[0][5].selectvalues = _.pluck(this.designs.filter(function (i) {return i.typeId === a}), "name");
+                this.playersLayoutTmpl[0][6].selectvalues = _.pluck(this.types, "name");
+                this.playersLayoutTmpl[0][6].value = pl.typeId;
+                return this.playersLayoutTmpl;
+            },
+            designsLoad: function (de) {
+                this.designsLayoutTmpl[0][0].value = de.name;
+                this.designsLayoutTmpl[0][1].value = de.title;
+                this.designsLayoutTmpl[0][2].value = de.origin;
+                this.designsLayoutTmpl[0][3].value = de.typeId;
+                this.designsLayoutTmpl[0][3].selectvalues = _.pluck(this.types, "name");
+                this.designsLayoutTmpl[0][4].value = de.content;
+                return this.designsLayoutTmpl
+            },
+            suitesLoad: function (su) {
+                this.suitesLayoutTmpl[0][0].value = su.name;
+                this.suitesLayoutTmpl[0][1].value = su.title;
+                this.suitesLayoutTmpl[0][2].value = su.pairs;
+                return this.suitesLayoutTmpl
+            },
+
+            dashboardLoad: function (da) {
+                var dashboardLayoutTmpl = [[]];
+                for (var i in this.players){
+                    dashboardLayoutTmpl[0][i] = {"fieldLabel":"", "fieldAttribute":"typeId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"", "selectvalues":[]};
+                    dashboardLayoutTmpl[0][i].fieldLabel = "Плеер " + this.players[i].name;
+                    dashboardLayoutTmpl[0][i].value = this.players[i].designId;
+                    var a = this.players[i].typeId;
+                    dashboardLayoutTmpl[0][i].selectvalues = _.pluck(this.designs.filter(function (j) {return j.typeId === a}), "name");
+                };
+                return dashboardLayoutTmpl;
+            },
+
+            /* normal value - false, chanhe it if you need to debug main form without "authentication" */
+            isLogged: true,
+            login: "admin",
+            password: "1234",
+
+            ready: function() {
+                var ra = document.querySelector('body /deep/ ra-layout');
+                var lb = document.querySelector('body /deep/ login-box');
+                if (lb && ra) {
+                    lb.addEventListener('login-box-login-try', function() {
+                        if (this.identifier !== ra.login || this.password !== ra.password) {
+                            lb.shake()
+                        } else {
+                            ra.isLogged = true;
+                        }
+                    })
+                } else {
+                    console.log("WARNING: login form not found")
+                }
+                // quick and dirty hook to initialize menus
+                for (var i in this.menus) {
+                    if (this[this.menus[i].name]){
+                        this.menus[i].content = this[this.menus[i].name]
+                    }
+                    else {
+                        console.log("ERROR: collection not found")
+                    }
+                };
+
+            },
+            players: [
+                {
+                _id: "Y9NsSkA5nmDZRrHL3",
+                name: 'pl1',
+                title: 'Входная галерея',
+                designId: '',
+                typeId: '720p-6x1-h',
+                ip: '10.7.0.1',
+                login: 'egor',
+                password: 'iehfkf3432'
+                },
+                {
+                    _id: "kCtv64ijBbN57wAWT",
+                    name: 'pl2',
+                    title: 'Кофейня',
+                    designId: '',
+                    typeId: '720p-4x1-v',
+                    ip: '10.7.0.2',
+                    login: 'rationale',
+                    password: 'iehfkf3432'
+                },
+                {
+                    _id: "NfZBHEDeWbKCbfvfK",
+                    name: 'pl3',
+                    title: 'Полки кофейня',
+                    designId: '',
+                    typeId: '720p-5x1-h',
+                    ip: '10.7.0.3',
+                    login: 'egor',
+                    password: 'iehfkf3432'
+                },
+                {
+                    _id: "QXpGCJfcfGXRNT4bB",
+                    name: 'pl4',
+                    title: 'Полки Ф1',
+                    designId: '',
+                    typeId: '720p-5x1-h',
+                    ip: '10.7.0.4',
+                    login: 'egor',
+                    password: 'iehfkf3432'
+                },
+                {
+                    _id: "QSxBCY44aPjN3CHND",
+                    name: 'pl5',
+                    title: 'Полки бар',
+                    designId: '',
+                    typeId: '720p-5x1-h',
+                    ip: '10.7.0.5',
+                    login: 'egor',
+                    password: 'iehfkf3432'
+                },
+                {
+                    _id: "dxqgrmtMc36gdQ9Nc",
+                    name: 'pl6',
+                    title: 'Бар левый',
+                    designId: '',
+                    typeId: '720p-3x2-h',
+                    ip: '10.7.0.6',
+                    login: 'egor',
+                    password: 'iehfkf3432'
+                },
+                {
+                    _id: "xadMCAmYariNFt4Ht",
+                    name: 'pl7',
+                    title: 'Бар правый',
+                    designId: '',
+                    typeId: '720p-2x2-h',
+                    ip: '10.7.0.7',
+                    login: 'egor',
+                    password: 'iehfkf3432'
+                },
+                {
+                    _id: "FqhNYutdJmo3eiB9x",
+                    name: 'pl8',
+                    title: 'Бар проход',
+                    designId: '',
+                    typeId: '720p-4x1-h',
+                    ip: '10.7.0.8',
+                    login: 'egor',
+                    password: 'iehfkf3432'
+                },
+                {
+                    _id: "pk3ZqZnfP4Ldd9tyS",
+                    name: 'pl9',
+                    title: 'Зеркала',
+                    designId: '',
+                    typeId: '720p-3x1-v',
+                    ip: '10.7.0.9',
+                    login: 'egor',
+                    password: 'iehfkf3432'
+                },
+                {
+                    _id: "3mJk8wHguE9egDPxE",
+                    name: 'pl10',
+                    title: 'Витрина',
+                    designId: '',
+                    typeId: '720p-3x1-v',
+                    ip: '10.7.0.10',
+                    login: 'egor',
+                    password: 'iehfkf3432'
+                }
+            ],
+            designs: [
+                {
+                _id: "xadMCAmYariNFt4HaS",
+                name: 'pl1-реклама',
+                title: 'Входная группа',
+                origin: 'http://10.1.2.1/pl1',
+                content: 'kjhkjhlkjh;kjhdjkhkjhkjhkjhkjh',
+                typeId: "720p-6x1-h"
+                },
+                {
+                    _id: "xadMCAmYariNFt4HSS",
+                    name: 'pl1-реклама-2',
+                    title: 'Входная группа 2',
+                    origin: 'http://10.1.2.1/pl1',
+                    content: '',
+                    typeId: "720p-6x1-h"
+                },
+                {
+                    _id: "xadMCAmYarZaFt4Ht",
+                    name: 'pl2',
+                    title: 'Кофейня',
+                    origin: 'http://10.1.2.1/pl2',
+                    content: '',
+                    typeId: "720p-4x1-v"
+                },
+                {
+                    _id: "xadMAsEYariNFt4Ht",
+                    name: 'pl3-5',
+                    title: 'Стеллажи',
+                    origin: 'http://10.1.2.1/pl3',
+                    content: '',
+                    typeId: "720p-5x1-h"
+                },
+                {
+                    _id: "xZaMCAmYariNFt4Ht",
+                    name: 'pl6',
+                    title: 'Бар левый',
+                    origin: 'http://10.1.2.1/pl6',
+                    content: '',
+                    typeId: "720p-3x2-h"
+                },
+                {
+                    _id: "xadMCAmYarVrFt4Ht",
+                    name: 'pl7',
+                    title: 'Бар правый',
+                    origin: 'http://10.1.2.1/pl7',
+                    content: '',
+                    typeId: "720p-2x2-h"
+                },
+                {
+                    _id: "xadMCXoEariNFt4Ht",
+                    name: 'pl8',
+                    title: 'Стеллажи 8',
+                    origin: 'http://10.1.2.1/pl8',
+                    content: '',
+                    typeId: "720p-4x1-h"
+                },
+                {
+                    _id: "xadMCAmAzIiNFt4Ht",
+                    name: 'pl9',
+                    title: 'Зеркала',
+                    origin: 'http://10.1.2.1/pl9',
+                    content: '',
+                    typeId: "720p-3x1-v"
+                },
+                {
+                    _id: "xadMCAZapriNFt4Ht",
+                    name: 'pl10',
+                    title: 'Витрина',
+                    origin: 'http://10.1.2.1/pl10',
+                    content: '',
+                    typeId: "720p-3x1-v"
+                }
+            ],
+            types: [
+                {
+                _id: "xadMCAmYariZaQ4Ht",
+                name: '720p-6x1-h',
+                title: '720p 6 горизонтальных',
+                params: ""
+                },
+                {
+                _id: "xadMCAmYariNZvIHt",
+                name: '720p-5x1-h',
+                title: '720p 5 горизонтальных',
+                params: ""
+                },
+                {
+                _id: "xadMCAmYariZxt4Ht",
+                name: '720p-4x1-h',
+                title: '720p 4 горизонтальных',
+                params: ""
+                },
+                {
+                _id: "xadMCAmYariXcT4Ht",
+                name: '720p-3x1-h',
+                title: '720p 3 горизонтальных',
+                params: ""
+                }, {
+                _id: "xadZxYtYariNFt4Ht",
+                name: '720p-2x1-h',
+                title: '720p 2 горизонтальных',
+                params: ""
+            }, {
+                _id: "xadMCAmYXiENFt4Ht",
+                name: '720p-1x1-h',
+                title: '720p 1 горизонтальный',
+                params: ""
+            }, {
+                _id: "xadMCAmYariZnR4Ht",
+                name: '720p-6x1-v',
+                title: '720p 6 вертикальных',
+                params: ""
+            }, {
+                _id: "xadMCAmXcVdNFt4Ht",
+                name: '720p-5x1-v',
+                title: '720p 5 вертикальных',
+                params: ""
+            }, {
+                _id: "ZxOyCAmYariNFt4Ht",
+                name: '720p-4x1-v',
+                title: '720p 4 вертикальных',
+                params: ""
+            }, {
+                _id: "xadMCAZmKpiNFt4Ht",
+                name: '720p-3x1-v',
+                title: '720p 3 вертикальных',
+                params: ""
+            }, {
+                _id: "xadMCAmYarQaUi4Ht",
+                name: '720p-2x1-v',
+                title: '720p 2 вертикальных',
+                params: ""
+            }, {
+                _id: "xadMCAZlRjiNFt4Ht",
+                name: '720p-1x1-v',
+                title: '720p 1 вертикальный',
+                params: ""
+            }],
+            suites: [
+                {
+                _id: "xadMCAmYariZxQhHt",
+                name: 'Футбол',
+                title: 'Футбольная',
+                pairs: [{
+                    player: 'playerId',
+                    design: 'designId'
+                }
+            ]
+            }]
+        });
+    </script>
+</polymer-element>
+
+<ra-layout></ra-layout>
+
+</body>
+
+</html>

@@ -14,7 +14,7 @@ if (Players.find().count() === 0) {
         name: 'pl1',
         title: 'Входная галерея',
         designId: '',
-        typeId: "",
+        typeId: '720p-6x1-h',
         ip: '10.7.0.1',
         login: 'egor',
         password: 'iehfkf3432'
@@ -24,7 +24,7 @@ if (Players.find().count() === 0) {
         name: 'pl2',
         title: 'Кофейня',
         designId: '',
-        typeId: "",
+        typeId: '720p-4x1-v',
         ip: '10.7.0.2',
         login: 'rationale',
         password: 'iehfkf3432'
@@ -34,7 +34,7 @@ if (Players.find().count() === 0) {
         name: 'pl3',
         title: 'Полки кофейня',
         designId: '',
-        typeId: "",
+        typeId: '720p-5x1-h',
         ip: '10.7.0.3',
         login: 'egor',
         password: 'iehfkf3432'
@@ -44,7 +44,7 @@ if (Players.find().count() === 0) {
         name: 'pl4',
         title: 'Полки Ф1',
         designId: '',
-        typeId: "",
+        typeId: '720p-5x1-h',
         ip: '10.7.0.4',
         login: 'egor',
         password: 'iehfkf3432'
@@ -54,7 +54,7 @@ if (Players.find().count() === 0) {
         name: 'pl5',
         title: 'Полки бар',
         designId: '',
-        typeId: "",
+        typeId: '720p-5x1-h',
         ip: '10.7.0.5',
         login: 'egor',
         password: 'iehfkf3432'
@@ -64,7 +64,7 @@ if (Players.find().count() === 0) {
         name: 'pl6',
         title: 'Бар левый',
         designId: '',
-        typeId: "",
+        typeId: '720p-3x2-h',
         ip: '10.7.0.6',
         login: 'egor',
         password: 'iehfkf3432'
@@ -74,7 +74,7 @@ if (Players.find().count() === 0) {
         name: 'pl7',
         title: 'Бар правый',
         designId: '',
-        typeId: "",
+        typeId: '720p-2x2-h',
         ip: '10.7.0.7',
         login: 'egor',
         password: 'iehfkf3432'
@@ -84,7 +84,7 @@ if (Players.find().count() === 0) {
         name: 'pl8',
         title: 'Бар проход',
         designId: '',
-        typeId: "",
+        typeId: '720p-4x1-h',
         ip: '10.7.0.8',
         login: 'egor',
         password: 'iehfkf3432'
@@ -94,7 +94,7 @@ if (Players.find().count() === 0) {
         name: 'pl9',
         title: 'Зеркала',
         designId: '',
-        typeId: "",
+        typeId: '720p-3x1-v',
         ip: '10.7.0.9',
         login: 'egor',
         password: 'iehfkf3432'
@@ -104,7 +104,7 @@ if (Players.find().count() === 0) {
         name: 'pl10',
         title: 'Витрина',
         designId: '',
-        typeId: "",
+        typeId: '720p-3x1-v',
         ip: '10.7.0.10',
         login: 'egor',
         password: 'iehfkf3432'
@@ -119,7 +119,7 @@ if (Designs.find().count() === 0) {
         title: 'Входная группа',
         origin: 'http://10.1.2.1/pl1',
         content: '',
-        typeId: ""
+        typeId: "720p-6x1-h"
     });
 
     Designs.insert({
@@ -127,7 +127,7 @@ if (Designs.find().count() === 0) {
         title: 'Кофейня',
         origin: 'http://10.1.2.1/pl2',
         content: '',
-        typeId: ""
+        typeId: "720p-4x1-v"
     });
 
     Designs.insert({
@@ -135,7 +135,7 @@ if (Designs.find().count() === 0) {
         title: 'Стеллажи',
         origin: 'http://10.1.2.1/pl3',
         content: '',
-        typeId: ""
+        typeId: "720p-5x1-h"
     });
 
     Designs.insert({
@@ -143,7 +143,7 @@ if (Designs.find().count() === 0) {
         title: 'Бар левый',
         origin: 'http://10.1.2.1/pl6',
         content: '',
-        typeId: ""
+        typeId: "720p-3x2-h"
     });
 
     Designs.insert({
@@ -151,7 +151,7 @@ if (Designs.find().count() === 0) {
         title: 'Бар правый',
         origin: 'http://10.1.2.1/pl7',
         content: '',
-        typeId: ""
+        typeId: "720p-2x2-h"
     });
 
     Designs.insert({
@@ -167,7 +167,7 @@ if (Designs.find().count() === 0) {
         title: 'Зеркала',
         origin: 'http://10.1.2.1/pl9',
         content: '',
-        typeId: ""
+        typeId: "720p-4x1-h"
     });
 
     Designs.insert({
@@ -175,7 +175,7 @@ if (Designs.find().count() === 0) {
         title: 'Витрина',
         origin: 'http://10.1.2.1/pl10',
         content: '',
-        typeId: ""
+        typeId: "720p-3x1-v"
     });
 }
 

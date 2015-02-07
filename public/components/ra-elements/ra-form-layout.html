@@ -5,9 +5,8 @@ This code may only be used under the BSD style license found at http://polymer.g
 Author: Will Hopkins
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-<!--
- Modified by Igor Akulov, added selector field and more generic way to get data, deleted ajax json
+
+ Modified by Igor Akulov, added "selector" and "ace" fields and more generic way to get data, deleted ajax json
  -->
 
 <link rel="import" href="../polymer/polymer.html">
@@ -24,33 +23,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../core-menu/core-menu.html">
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../ace-element/ace-element.html">
+
 <!--
 Element provides a layout of input elements i.e a form. The form may be generated from a json file.
-If used the json file must be in the same directory as the invoking page and must be named formitems.json
 
 ##### Example
-    <ra-form-layout id='formLayout' formItems="{{formItems}}" formResults="{{formResults}}" loadexternal=true>
+    <ra-form-layout id='formLayout' formItems="{{formItems}}" formValues="{{formValues}}">
     </ra-form-layout>
 
 @element ra-form-layout
-@blurb Generate a form 
-@status alpha
-@homepage https://github.com/Will-in-BC/ra-form-layout.git
+@blurb Generate a form
 
 The classes ra-field-box and ra-group-box may be used to style the div containing the fields and the field group.
-Also each field is assigned an id equal to the fieldAttribute so individual fields may be styled separately. 
-
-
-Techniques illustrated:
-  -- repeated and conditional template binding
-  -- data binding
-  -- modal dialog
-  -- ajax loading of a json file
-  -- locating the path of the invoking page
+Also each field is assigned an id equal to the fieldAttribute so individual fields may be styled separately.
 -->
 
-<polymer-element name="ra-form-layout" attributes="formItems formValues">
-
+<polymer-element name="ra-form-layout">
     <template>
         <div id='container'>
             <template repeat="{{formGroup, i in formItems}}">
@@ -103,18 +91,9 @@ Techniques illustrated:
                                 </paper-dropdown-menu>
                             </div>
                         </template>
-                        <template id="ace_tmpl" if="{{fieldInfo.useControl==='ace'}}">
-                            <style>
-                                /* ace element needed style */
-                                juicy-ace-editor {
-                                    margin: 0px;
-                                    width: 100%;
-                                    height: 13em;
-                                }
-                            </style>
+                        <template id="ace_tmpl"  if="{{fieldInfo.useControl==='ace'}}">
                             <div layout horizontal justified center class='ra-group-box-ace' id="{{fieldInfo.fieldAttribute}}">
-                                <ace-element theme="chrome"  fontSize="16px" value="{{fieldInfo.value}}">
-                                </ace-element>
+                                <ace-element  on-editor-input="{{aceFired}}" theme="chrome" mode="json" tabSize="2" fontSize="16px" value="{{fieldInfo.value}}">{{fieldInfo.value}}</ace-element>
                             </div>
                         </template>
                     </template>
@@ -124,13 +103,12 @@ Techniques illustrated:
     </template>
     <script>
         Polymer({
-            formResults: {},
             formItems: [],
             formMap: {},
             publish: {
                 /**
-                 * An two dimensional array of objects that sets up the form. Either pass this array or use
-                 * loadexternal to read the array from a json file. If you run the demo you will see an example
+                 * An two dimensional array of objects that sets up the form. Either pass this array
+                 * If you run the demo you will see an example
                  * of the format of this array. The first dimension of the array is used to group fields and the second
                  * to enumerate the fields within the group.
                  *
@@ -139,15 +117,6 @@ Techniques illustrated:
                  * @default empty
                  */
                 formItems: [],
-                /**
-                 * Specifies whether an external file is used to generate formItems. The file used is formitems.json located in the
-                 * directory of the invoking page (not the directory of the element)
-                 *
-                 * @attribute loadexternal
-                 * @type boolean
-                 * @default false
-                 */
-                loadexternal: false,
                 /**
                  * Returns an object that contains the values of the form items
                  *
@@ -159,9 +128,19 @@ Techniques illustrated:
             }, // end publish
 
             ready: function () {
-//                this.formItems = window.playerFormLayouts;
                 this.updateFormValues();
             }, // end ready
+
+            aceFired: function (a,b,c) {
+                for (var i = 0; i < this.formItems.length; ++i) {
+                    for (var j = 0; j < this.formItems[i].length; ++j) {
+                        if (this.formItems[i][j].useControl === "ace"){
+                            this.formItems[i][j].value = b.value;
+                        }
+                    }
+                }
+                this.updateFormValues();
+            },
 
             loadFormItems: function (items) {
                 this.formItems = items;
@@ -170,15 +149,15 @@ Techniques illustrated:
             }, // end loadFormItems
 
             updateFormValues: function () {
-                for (i = 0; i < this.formItems.length; ++i) {
-                    for (j = 0; j < this.formItems[i].length; ++j) {
+                for (var i = 0; i < this.formItems.length; ++i) {
+                    for (var j = 0; j < this.formItems[i].length; ++j) {
                         this.formMap[this.formItems[i][j].fieldAttribute] = {};
                         this.formMap[this.formItems[i][j].fieldAttribute].i = i;
                         this.formMap[this.formItems[i][j].fieldAttribute].j = j;
                         this.formValues[this.formItems[i][j].fieldAttribute] = this.formItems[i][j].value;
                     }
                 }
-            }, // end updateFormResults
+            }, // end updateFormValues
 
             /**
              * If formValues is updated invoke this method to update formItems and refresh labels
@@ -193,7 +172,7 @@ Techniques illustrated:
                     this.formItems[this.formMap[attribute].i][this.formMap[attribute].j].value = this.formValues[attribute];
                 }
                 this.refreshLabels();
-            }, // end refreshFormResults
+            }, // end refreshFormItems
 
 
             /**

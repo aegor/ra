@@ -1,0 +1,289 @@
+<link rel="import" href="../core-scaffold/core-scaffold.html">
+<link rel="import" href="../core-ajax/core-ajax.html">
+<link rel="import" href="../core-header-panel/core-header-panel.html">
+<link rel="import" href="../core-menu/core-menu.html">
+<link rel="import" href="../core-toolbar/core-toolbar.html">
+<link rel="import" href="../core-field/core-field.html">
+<link rel="import" href="../core-icon/core-icon.html">
+<link rel="import" href="../core-input/core-input.html">
+<link rel="import" href="../core-icons/core-icons.html">
+<link rel="import" href="../core-menu/core-submenu.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../ra-elements/ra-login-box.html">
+<link rel="import" href="../ra-elements/ra-form-layout.html">
+
+<link rel="import" href="../ra-elements/ra-crud-buttons.html">
+
+<polymer-element name="ra-basic-layout" attributes="selectedSub formValues">
+    <template>
+        <style>
+            /*note the class ra-group-box is assign to the containing div for each field group*/
+            /* ra-form-layout css */
+            ra-form-layout /deep/ .ra-group-box {
+                border-style:dotted;
+                border-width:1px;
+                border-color: green;
+                margin:5px;
+                padding:5px 20px;
+                width: 50%;
+            }
+
+            ra-form-layout /deep/ .ra-group-box-ace {
+                border-style:dotted;
+                border-width:1px;
+                border-color: green;
+                margin:5px;
+                padding:5px 20px;
+                width: 100%;
+            }
+            /*note the class ra-field-box is assign to the containing div for each field*/
+
+            ra-form-layout /deep/ .ra-field-box {
+                border-style:dotted;
+                border-width:1px;
+                margin:5px;
+                padding:5px 20px;
+                width: 200px;
+            }
+
+            /*note the element assigns an id equal to the fieldAttribute value to the containing div for each
+            field so each field can be styled individually.
+            */
+
+            ra-form-layout /deep/ #slider {
+                background-color: grey;
+                width:400px;
+            }
+
+            ra-form-layout /deep/ paper-input-decorator {
+                padding: 0px;
+            }
+
+            ra-form-layout /deep/ p {
+                margin: 0px;
+            }
+
+            ra-form-layout /deep/ paper-dropdown-menu {
+                margin: 0px;
+            }
+
+            html /deep/ paper-dropdown-menu {
+                box-sizing: border-box;
+                width: 170px;
+                margin: 0px;
+            }
+
+            html /deep/ core-menu {
+                box-sizing: border-box;
+                width: 170px;
+            }
+
+            paper-item {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            html /deep/ core-collapse {
+                border: 1px solid #ccc;
+                padding: 8px;
+            }
+
+            html /deep/ core-overlay {
+                border: 1px solid #ccc;
+                padding: 8px;
+                background: #fff;
+            }
+
+            .constrained-height {
+                height: 150px;
+            }
+
+            .dropdown.colored::shadow #ripple,
+            .dropdown.colored::shadow #background {
+                border: 1px solid #0f9d58;
+                background-color: #b7e1cd;
+            }
+
+            /* ra-form-layout end css */
+        </style>
+        <template if="{{isLogged}}">
+            <core-scaffold>
+                <core-header-panel mode="seamed" navigation flex>
+                    <core-toolbar>
+                        <paper-button class="colored ra" id="logout" on-click="{{logoutAction}}">
+                            <core-icon icon="exit-to-app"></core-icon>
+                            Выйти
+                        </paper-button>
+                    </core-toolbar>
+                    <!-- <paper-shadow z="1"> -->
+                    <core-menu selected="{{mainMenuSelected}}" selectedIndex="{{mainMenuSelectedIndex}}">
+                        <template repeat="{{menu in menus}}">
+                            <core-submenu id="{{menu.name}}_submenu" selected="{{selectedSub}}" selectedIndex="{{selectedSubIndex}}" icon="{{menu.icon}}" label="{{menu.display}}">
+                                <template repeat="{{ m_item in menu.content }}">
+                                    <paper-item>{{m_item.name}}</paper-item>
+                                </template>
+                            </core-submenu>
+                        </template>
+                    </core-menu>
+                    <!-- </paper-shadow> -->
+                </core-header-panel>
+                <div tool>Rationale</div>
+                        <template if="{{menus[mainMenuSelectedIndex].name === 'dashboard'}}">
+                            <ra-form-layout
+                                    formItems="{{menus[mainMenuSelectedIndex].name | formBuilder(menus[mainMenuSelectedIndex].name)}}" formValues="{{formValues}}">
+                            </ra-form-layout>
+                            <crud-buttons
+                                    updateonly="{{true}}" onaction="{{crudAction}}" collection="dashboard">
+                            </crud-buttons>
+                        </template>
+                        <template if="{{menus[mainMenuSelectedIndex].content[selectedSub].name && menus[mainMenuSelectedIndex].submenu}}">
+                            <ra-form-layout
+                                formItems="{{menus[mainMenuSelectedIndex].content[selectedSub] | formBuilder(menus[mainMenuSelectedIndex].name)}}" formValues="{{formValues}}">
+                            </ra-form-layout>
+                            <!--TODO get values from form with filter!!!-->
+                            <crud-buttons
+                                    onaction="{{crudAction}}"
+                                    collection="{{menus[mainMenuSelectedIndex].name}}"
+                                    elementid="{{menus[mainMenuSelectedIndex].content[selectedSub]._id}}">
+                            </crud-buttons>
+                        </template>
+            </core-scaffold>
+        </template>
+        <template if="{{!isLogged}}">
+            <div horizontal center-justified layout>
+                <ra-login-box></ra-login-box>
+            </div>
+        </template>
+    </template>
+    <script>
+        Polymer('ra-basic-layout', {
+
+            menus: [
+                {name: "dashboard", display: "Dashboard", icon: "assessment", submenu: false, content: {}},
+                {name: "suites", display: "Сюиты", icon: "assignment", submenu: true, content: {}},
+                {name: "players", display: "Плееры", icon: "view-quilt", submenu: true, content: {}},
+                {name: "designs", display: "Дизайны", icon: "theaters", submenu: true, content: {}}
+            ],
+
+            formValues: {},
+
+            logoutAction: function () {
+                this.fire('logout-action');
+            },
+
+            crudAction: function (e){
+                var ra = document.querySelector('body /deep/ ra-basic-layout');
+                var action = e.target.attributes['data-action'].value;
+                var elementid = e.target.attributes['data-elementid'].value;
+                var coll = e.target.attributes['data-collection'].value;
+                this.fire('crud-action', {action: action, collection: coll, object: ra.formValues, elementid: elementid});
+                // console.log("CRUD form values:", ra.formValues)
+            },
+
+            formBuilder: function (content, table) {
+                if (content !== undefined){
+                    var result = this[table + "Load"](content);
+                    return result;
+                }
+            },
+            playersLoad: function (pl) {
+                var playersLayoutTmpl = [
+                    [
+                        {"fieldLabel":"Имя", "fieldAttribute":"name", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                        {"fieldLabel":"Описание", "fieldAttribute":"title", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                        {"fieldLabel":"IP адрес", "fieldAttribute":"ip", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                        {"fieldLabel":"Логин", "fieldAttribute":"login", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                        {"fieldLabel":"Пароль", "fieldAttribute":"password", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                        {"fieldLabel":"Дизайн", "fieldAttribute":"designId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"three", "selectvalues":["one", "two", "three", "four"]},
+                        {"fieldLabel":"Тип", "fieldAttribute":"typeId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"three", "selectvalues":["one", "two", "three", "four"]},
+                    ]
+                ];
+                playersLayoutTmpl[0][0].value = pl.name;
+                playersLayoutTmpl[0][1].value = pl.title;
+                playersLayoutTmpl[0][2].value = pl.ip;
+                playersLayoutTmpl[0][3].value = pl.login;
+                playersLayoutTmpl[0][4].value = pl.password;
+                playersLayoutTmpl[0][5].value = pl.designId;
+                var a = pl.typeId;
+                playersLayoutTmpl[0][5].selectvalues = _.pluck(this.designs.filter(function (i) {return i.typeId === a}), "name");
+                playersLayoutTmpl[0][6].selectvalues = _.pluck(this.types, "name");
+                playersLayoutTmpl[0][6].value = pl.typeId;
+                return playersLayoutTmpl;
+            },
+            designsLoad: function (de) {
+                var designsLayoutTmpl = [
+                    [
+                        {"fieldLabel":"Имя", "fieldAttribute":"name", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                        {"fieldLabel":"Описание", "fieldAttribute":"title", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                        {"fieldLabel":"URL", "fieldAttribute":"origin", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                        {"fieldLabel":"Тип", "fieldAttribute":"typeId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"three", "selectvalues":["one", "two", "three", "four"]},
+                        {"fieldLabel":"Содержимое", "fieldAttribute":"content", "useControl":"ace", "disabled":false, "class":"refreshLabel", "value":""}
+                    ]
+                ];
+                designsLayoutTmpl[0][0].value = de.name;
+                designsLayoutTmpl[0][1].value = de.title;
+                designsLayoutTmpl[0][2].value = de.origin;
+                designsLayoutTmpl[0][3].value = de.typeId;
+                designsLayoutTmpl[0][3].selectvalues = _.pluck(this.types, "name");
+                designsLayoutTmpl[0][4].value = de.content;
+                return designsLayoutTmpl
+            },
+            suitesLoad: function (su) {
+                var suitesLayoutTmpl = [
+                    [
+                        {"fieldLabel":"Имя", "fieldAttribute":"name", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                        {"fieldLabel":"Описание", "fieldAttribute":"title", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""},
+                        {"fieldLabel":"Соответствия", "fieldAttribute":"pairs", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":""}
+                    ]
+                ];
+                suitesLayoutTmpl[0][0].value = su.name;
+                suitesLayoutTmpl[0][1].value = su.title;
+                suitesLayoutTmpl[0][2].value = su.pairs;
+                return suitesLayoutTmpl
+            },
+
+            dashboardLoad: function (da) {
+                var dashboardLayoutTmpl = [[]];
+                for (var i in this.players){
+                    dashboardLayoutTmpl[0][i] = {"fieldLabel":"", "fieldAttribute":"typeId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"", "selectvalues":[]};
+                    dashboardLayoutTmpl[0][i].fieldLabel = "ПЛЕЕР " + this.players[i].name;
+                    dashboardLayoutTmpl[0][i].value = this.players[i].designId;
+                    var a = this.players[i].typeId;
+                    dashboardLayoutTmpl[0][i].selectvalues = _.pluck(this.designs.filter(function (j) {return j.typeId === a}), "name");
+                };
+                dashboardLayoutTmpl[1][0] = {"fieldLabel":"ВЫБРАТЬ СЮИТУ", "fieldAttribute":"typeId", "useControl":"dropdown", "disabled":false, "class":"refreshLabel", "value":"", "selectvalues":[]};
+                dashboardLayoutTmpl[2][0] = {"fieldLabel":"ЗАПИСАТЬ КАК СЮИТУ", "fieldAttribute":"typeId", "useControl":"input", "disabled":false, "class":"refreshLabel", "value":"", "selectvalues":[]};
+                return dashboardLayoutTmpl;
+            },
+
+            /* normal value - false, chanhe it if you need to debug main form without "authentication" */
+            isLogged: false,
+
+            ready: function() {
+                /* deep search of elements in light and shadow DOM hierarchy */
+                var ra = document.querySelector('body /deep/ ra-basic-layout');
+                // dirty hook to initialize menus
+                ra.menuFabric = function() {
+                    /* deep search of element in light and shadow DOM hierarchy */
+                    var ra = document.querySelector('body /deep/ ra-basic-layout');
+                    for (var i in ra.menus) {
+                        if (ra.menus[i].submenu === true) {
+                            if (ra[ra.menus[i].name]) {
+                                ra.menus[i].content = ra[ra.menus[i].name];
+                                //if (i == 2) {console.log("ramenus:", ra[ra.menus[i].name])};
+                                //if (!ra[ra.menus[i].name + "Changed"]) {ra[ra.menus[i].name + "Changed"] = function (){console.log(this)}}
+                            }
+                            else {
+                                console.log("%cERROR: collection not found, waiting for backend", "color: blue; font-size: 12px;", ra.menus[i].name, "100 ms");
+                                window.setTimeout(ra.menuFabric, 100);
+                            }
+                        }
+                    }
+                }
+                ra.menuFabric();
+            }
+        });
+    </script>
+</polymer-element>
