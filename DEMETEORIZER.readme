@@ -1,0 +1,17 @@
+see more info: https://github.com/onmodulus/demeteorizer
+
+demeteriorizer -t build.tgz
+
+Environment variables:
+
+export MONGO_URL='mongodb://user:password@host:port/databasename?autoReconnect=true'
+export MONGO_URL='mongodb://user:password@host:port/databasename?autoReconnect=true&connectTimeout=60000'
+export ROOT_URL='http://example.com'
+export MAIL_URL='smtp://user:password@mailhost:port/' (optional)
+export PORT=8080 (optional, defaults to 80)
+
+Exec:
+
+npm install
+node main.js
+

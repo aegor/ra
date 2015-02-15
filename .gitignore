@@ -1,2 +1,5 @@
 .meteor/local
 .idea
+build.tgz
+node_modules
+public/index.html

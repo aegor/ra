@@ -4,6 +4,7 @@ Meteor.startup(function()
     if (Meteor.users.find().fetch().length === 0){
        Accounts.createUser({username: "admin", email: "admin@friendsdiner.ru", password: "admin", profile: {firstName: "Admin", lastName: "FriendsDiner"}});
        Accounts.createUser({username: "user", email: "user@friendsdiner.ru", password: "user", profile: {firstName: "User", lastName: "FriendsDiner"}}); 
+       Accounts.config({loginExpirationInDays: 1})
     }
     // 
 
@@ -300,6 +301,42 @@ Meteor.startup(function()
         {
             name: '720p-1x1-v',
             title: '720p 1 вертикальный',
+            params: ""
+        });
+        PlayerTypes.insert(
+        {
+            name: '720p-2x2-h',
+            title: '720p 2x2 горизонтальный',
+            params: ""
+        });
+        PlayerTypes.insert(
+        {
+            name: '720p-3x3-h',
+            title: '720p 3x3 горизонтальный',
+            params: ""
+        });
+        PlayerTypes.insert(
+        {
+            name: '720p-2x2-v',
+            title: '720p 2x2 вертикальный',
+            params: ""
+        });
+        PlayerTypes.insert(
+        {
+            name: '720p-3x3-v',
+            title: '720p 3x3 вертикальный',
+            params: ""
+        });
+        PlayerTypes.insert(
+        {
+            name: '720p-3x2-h',
+            title: '720p 3x2 горизонтальный',
+            params: ""
+        });
+        PlayerTypes.insert(
+        {
+            name: '720p-3x2-v',
+            title: '720p 3x2 вертикальный',
             params: ""
         });
     } /* If PlayerTypes */
