@@ -73,6 +73,7 @@ Suites.allow({
 Meteor.publish('types', function() {
     return PlayerTypes.find();
 });
+
 PlayerTypes.allow({
     insert: function (userId, doc) {
         console.log("PlayerTypes insert allow", userId, doc);
@@ -86,4 +87,10 @@ PlayerTypes.allow({
         console.log("PlayerTypes delete allow", userId, doc);
         return Meteor.users.findOne(userId).username === "admin"
     }
+});
+
+Meteor.publish('player', function() {
+    console.log("Player publish:", this.connection.clientAddress)
+    console.log("Player find:", Players.find({name: "pl2"}).fetch())
+    return Players.find();
 });

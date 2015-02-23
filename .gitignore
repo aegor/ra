@@ -3,3 +3,4 @@
 build.tgz
 node_modules
 public/index.html
+packages/npm-container
