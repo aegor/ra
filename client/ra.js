@@ -5,11 +5,20 @@ Meteor.startup(function() {
     Meteor.subscribe('designs');
     Meteor.subscribe('suites');
     Meteor.subscribe('types');
+
     var _ = lodash; // this is because bugged underscore version in meteor
 
     window.addEventListener('polymer-ready', function (e) {
         var ra = document.querySelector('#ra-basic-layout');
         var lb = document.querySelector('body /deep/ ra-login-box');
+
+        Tracker.autorun(function() {
+            ra.config = Config.find().fetch();
+            ra.players = Players.find().fetch();
+            ra.designs = Designs.find().fetch();
+            ra.suites = Suites.find().fetch();
+            ra.types = PlayerTypes.find().fetch();
+        }); // Tracker autorun
 
         if (Meteor.user()) {
             ra.isLogged = true;
@@ -143,15 +152,6 @@ Meteor.startup(function() {
                     console.log("ERROR: CRUD not validated:", e.type, detail.action, collection);
                     return
         }); // CRUD action
-
-        Tracker.autorun(function() {
-            ra.config = Config.find().fetch();
-            ra.players = Players.find().fetch();
-            ra.designs = Designs.find().fetch();
-            ra.suites = Suites.find().fetch();
-            ra.types = PlayerTypes.find().fetch();
-        }); // Tracker autorun
-
     }); // Polymer ready
 }); // Meteor startup
 

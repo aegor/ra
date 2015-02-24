@@ -90,7 +90,16 @@ PlayerTypes.allow({
 });
 
 Meteor.publish('player', function() {
-    console.log("Player publish:", this.connection.clientAddress)
-    console.log("Player find:", Players.find({name: "pl2"}).fetch())
-    return Players.find();
+    var res = Players.find({ip: this.connection.clientAddress});
+    //console.log("Player find:", res.fetch());
+    return res
+});
+
+Meteor.publish('design', function() {
+    var res = Players.find({ip: this.connection.clientAddress});
+    if (res.length !== 0){
+        var dis = Designs.find({name: res.fetch()[0].designId});
+        console.log("Design find:", dis.fetch());
+        return dis
+    }
 });
